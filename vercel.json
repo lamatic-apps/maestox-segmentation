@@ -1,8 +1,23 @@
 {
-  "functions": {
-    "api/run.js": { "maxDuration": 300 },
-    "api/run-grouped.js": { "maxDuration": 300 },
-    "api/status.js": { "maxDuration": 30 },
-    "api/upload-page.js": { "maxDuration": 60 }
-  }
+  "version": 2,
+  "builds": [
+    { "src": "index.html", "use": "@vercel/static" },
+    { "src": "history.html", "use": "@vercel/static" },
+    { "src": "upload.html", "use": "@vercel/static" },
+    { "src": "grouped.html", "use": "@vercel/static" },
+    { "src": "mupdf/**", "use": "@vercel/static" },
+    { "src": "api/run.js", "use": "@vercel/node", "config": { "maxDuration": 300 } },
+    { "src": "api/run-grouped.js", "use": "@vercel/node", "config": { "maxDuration": 300 } },
+    { "src": "api/status.js", "use": "@vercel/node", "config": { "maxDuration": 30 } },
+    { "src": "api/upload-page.js", "use": "@vercel/node", "config": { "maxDuration": 60 } },
+    { "src": "api/save-run.js", "use": "@vercel/node" },
+    { "src": "api/runs.js", "use": "@vercel/node" }
+  ],
+  "routes": [
+    { "src": "/api/(.*)", "dest": "/api/$1" },
+    { "src": "/mupdf/(.*)", "dest": "/mupdf/$1" },
+    { "src": "/history", "dest": "/history.html" },
+    { "src": "/upload", "dest": "/upload.html" },
+    { "src": "/", "dest": "/index.html" }
+  ]
 }
