@@ -1,4 +1,4 @@
-const axios = require('axios');
+import axios from 'axios';
 
 const lamatic_api_key = process.env.LAMATIC_API_KEY;
 
