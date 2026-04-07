@@ -1,5 +1,4 @@
 {
-  "outputDirectory": "public",
   "functions": {
     "api/run.js": { "maxDuration": 300 },
     "api/status.js": { "maxDuration": 30 },
