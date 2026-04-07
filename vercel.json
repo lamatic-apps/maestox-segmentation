@@ -12,12 +12,5 @@
     { "src": "api/upload-page.js", "use": "@vercel/node", "config": { "maxDuration": 60 } },
     { "src": "api/save-run.js", "use": "@vercel/node" },
     { "src": "api/runs.js", "use": "@vercel/node" }
-  ],
-  "routes": [
-    { "src": "/api/(.*)", "dest": "/api/$1" },
-    { "src": "/mupdf/(.*)", "dest": "/mupdf/$1" },
-    { "src": "/history", "dest": "/history.html" },
-    { "src": "/upload", "dest": "/upload.html" },
-    { "src": "/", "dest": "/index.html" }
   ]
 }
