@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Maestrox – Upload PDF</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: #0f1117; color: #e2e8f0; min-height: 100vh; padding: 32px;
+    }
+
+    .card {
+      background: #1a1d27; border: 1px solid #2d3148; border-radius: 16px;
+      padding: 40px; width: 100%; max-width: 860px; margin: 0 auto;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+    }
+
+    h1 { font-size: 1.5rem; font-weight: 700; color: #fff; margin-bottom: 6px; }
+    .subtitle { font-size: 0.875rem; color: #6b7280; margin-bottom: 32px; }
+
+    /* Drop zone */
+    .drop-zone {
+      border: 2px dashed #2d3148; border-radius: 12px;
+      padding: 48px 24px; text-align: center; cursor: pointer;
+      transition: border-color 0.2s, background 0.2s;
+      position: relative;
+    }
+    .drop-zone:hover, .drop-zone.drag-over { border-color: #6366f1; background: #13152a; }
+    .drop-zone input[type="file"] { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+    .drop-icon { font-size: 2.5rem; margin-bottom: 12px; }
+    .drop-title { font-size: 1rem; font-weight: 600; color: #e2e8f0; margin-bottom: 4px; }
+    .drop-hint { font-size: 0.8rem; color: #4b5563; }
+
+    /* Progress */
+    .progress-section { margin-top: 28px; display: none; }
+    .progress-section.visible { display: block; }
+
+    .progress-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+    .progress-label { font-size: 0.8rem; font-weight: 600; color: #9ca3af; }
+    .progress-count { font-size: 0.8rem; color: #6b7280; }
+
+    .progress-bar-wrap { background: #0f1117; border-radius: 99px; height: 6px; overflow: hidden; }
+    .progress-bar { background: #6366f1; height: 100%; border-radius: 99px; width: 0%; transition: width 0.3s; }
+
+    .phase-label {
+      margin-top: 10px; font-size: 0.82rem; color: #fbbf24;
+      display: flex; align-items: center; gap: 6px;
+    }
+
+    /* Page grid */
+    .pages-section { margin-top: 28px; display: none; }
+    .pages-section.visible { display: block; }
+    .pages-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+    .pages-header label { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #4b5563; }
+
+    .pages-grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+      gap: 10px; max-height: 480px; overflow-y: auto;
+    }
+
+    .page-thumb {
+      background: #0f1117; border: 1px solid #2d3148; border-radius: 8px;
+      overflow: hidden; aspect-ratio: 3/4; position: relative;
+    }
+    .page-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .page-thumb .page-num {
+      position: absolute; bottom: 4px; right: 6px;
+      font-size: 0.65rem; color: #6b7280; background: rgba(15,17,23,0.8);
+      padding: 1px 5px; border-radius: 4px;
+    }
+    .page-thumb.uploading { opacity: 0.5; }
+    .page-thumb.done { border-color: #166534; }
+    .page-thumb.failed { border-color: #7f1d1d; }
+
+    /* Action button */
+    button.run-btn {
+      background: #6366f1; color: #fff; border: none; border-radius: 10px;
+      padding: 12px 28px; font-size: 0.95rem; font-weight: 600; cursor: pointer;
+      width: 100%; margin-top: 20px; transition: background 0.2s, transform 0.1s;
+    }
+    button.run-btn:hover { background: #4f51d0; }
+    button.run-btn:active { transform: scale(0.98); }
+    button.run-btn:disabled { background: #3d3f5e; cursor: not-allowed; }
+
+    .error-msg { margin-top: 12px; color: #f87171; font-size: 0.82rem; }
+
+    .spinner {
+      display: inline-block; width: 10px; height: 10px;
+      border: 2px solid #6366f1; border-top-color: transparent;
+      border-radius: 50%; animation: spin 0.7s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>Upload PDF</h1>
+    <p class="subtitle">Each page will be extracted and uploaded to Vercel Blob, then analysed</p>
+
+    <div class="drop-zone" id="drop-zone">
+      <input type="file" accept="application/pdf" onchange="onFileSelected(this.files[0])" />
+      <div class="drop-icon">📄</div>
+      <div class="drop-title">Drop a PDF here or click to browse</div>
+      <div class="drop-hint">All processing happens in your browser</div>
+    </div>
+
+    <div class="progress-section" id="progress-section">
+      <div class="progress-header">
+        <span class="progress-label" id="progress-label">Processing…</span>
+        <span class="progress-count" id="progress-count"></span>
+      </div>
+      <div class="progress-bar-wrap">
+        <div class="progress-bar" id="progress-bar"></div>
+      </div>
+      <div class="phase-label" id="phase-label"></div>
+    </div>
+
+    <div class="pages-section" id="pages-section">
+      <div class="pages-header">
+        <label id="pages-label">Pages</label>
+      </div>
+      <div class="pages-grid" id="pages-grid"></div>
+    </div>
+
+    <div class="error-msg" id="error-msg"></div>
+
+    <button class="run-btn" id="analyse-btn" onclick="runAnalysis()" style="display:none">
+      Analyse Pages →
+    </button>
+  </div>
+
+  <script type="module">
+    import * as mupdf from '/node_modules/mupdf/dist/mupdf.js';
+
+    let uploadedUrls = [];
+
+    // Drag-over highlight
+    const dz = document.getElementById('drop-zone');
+    dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('drag-over'); });
+    dz.addEventListener('dragleave', () => dz.classList.remove('drag-over'));
+    dz.addEventListener('drop', e => {
+      e.preventDefault(); dz.classList.remove('drag-over');
+      const file = e.dataTransfer.files[0];
+      if (file?.type === 'application/pdf') onFileSelected(file);
+    });
+
+    document.querySelector('input[type="file"]').addEventListener('change', e => {
+      if (e.target.files[0]) onFileSelected(e.target.files[0]);
+    });
+
+    async function onFileSelected(file) {
+      if (!file) return;
+      uploadedUrls = [];
+      document.getElementById('error-msg').textContent = '';
+      document.getElementById('analyse-btn').style.display = 'none';
+      document.getElementById('pages-section').classList.remove('visible');
+      document.getElementById('pages-grid').innerHTML = '';
+
+      const arrayBuffer = await file.arrayBuffer();
+      const data = new Uint8Array(arrayBuffer);
+
+      const doc = mupdf.Document.openDocument(data, 'application/pdf');
+      const total = doc.countPages();
+
+      setProgress(0, total, `Rendering page 1 of ${total}…`);
+      document.getElementById('progress-section').classList.add('visible');
+      document.getElementById('pages-section').classList.add('visible');
+      document.getElementById('pages-label').textContent = `Pages (${total})`;
+
+      const prefix = file.name.replace(/\.pdf$/i, '').replace(/[^a-zA-Z0-9_-]/g, '_');
+
+      for (let p = 0; p < total; p++) {
+        const pageNum = p + 1;
+        setPhase(`Rendering page ${pageNum} of ${total}…`);
+        setProgress(p, total, `Page ${pageNum} / ${total}`);
+
+        const thumb = addThumb(pageNum);
+
+        try {
+          const page = doc.loadPage(p);
+          const scale = 2.0;
+          const pixmap = page.toPixmap(
+            [scale, 0, 0, scale, 0, 0],
+            mupdf.ColorSpace.DeviceRGB,
+            false,
+            true
+          );
+          const pngData = pixmap.asPNG(); // Uint8Array
+
+          // Show thumbnail via blob URL
+          const thumbBlob = new Blob([pngData], { type: 'image/png' });
+          thumb.querySelector('img').src = URL.createObjectURL(thumbBlob);
+
+          // Upload to Vercel Blob
+          thumb.classList.add('uploading');
+          setPhase(`Uploading page ${pageNum} of ${total}…`);
+
+          const filename = `pdf-pages/${prefix}--page-${pageNum}-${Date.now()}.png`;
+          const uploadRes = await fetch('/api/upload-page', {
+            method: 'POST',
+            headers: { 'x-filename': filename, 'Content-Type': 'image/png' },
+            body: pngData,
+          });
+          const { url, error } = await uploadRes.json();
+          if (error) throw new Error(error);
+
+          uploadedUrls.push(url);
+          thumb.classList.remove('uploading');
+          thumb.classList.add('done');
+
+        } catch (err) {
+          thumb.classList.remove('uploading');
+          thumb.classList.add('failed');
+          console.error(`Page ${pageNum} failed:`, err);
+        }
+
+        setProgress(pageNum, total, `Page ${pageNum} / ${total}`);
+      }
+
+      setPhase('');
+      document.getElementById('progress-label').textContent = `Done — ${uploadedUrls.length} of ${total} pages uploaded`;
+      if (uploadedUrls.length) {
+        document.getElementById('analyse-btn').style.display = 'block';
+      }
+    }
+
+    function addThumb(pageNum) {
+      const div = document.createElement('div');
+      div.className = 'page-thumb';
+      div.id = `thumb-${pageNum}`;
+      div.innerHTML = `<img src="" alt="Page ${pageNum}" /><span class="page-num">${pageNum}</span>`;
+      document.getElementById('pages-grid').appendChild(div);
+      return div;
+    }
+
+    function setProgress(done, total, label) {
+      document.getElementById('progress-bar').style.width = `${(done / total) * 100}%`;
+      document.getElementById('progress-count').textContent = `${done} / ${total}`;
+      if (label) document.getElementById('progress-label').textContent = label;
+    }
+
+    function setPhase(text) {
+      const el = document.getElementById('phase-label');
+      el.innerHTML = text ? `<span class="spinner"></span>${text}` : '';
+    }
+
+    // Expose runAnalysis to the button's onclick
+    window.runAnalysis = function() {
+      sessionStorage.setItem('pendingUrls', JSON.stringify(uploadedUrls));
+      window.location.href = '/index.html';
+    };
+  </script>
+</body>
+</html>

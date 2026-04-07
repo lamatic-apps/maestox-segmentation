@@ -1,0 +1,1233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Maestrox Segmentation</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: #0f1117;
+      color: #e2e8f0;
+      min-height: 100vh;
+      padding: 24px;
+    }
+
+    .card {
+      background: #1a1d27;
+      border: 1px solid #2d3148;
+      border-radius: 16px;
+      padding: 40px;
+      width: 100%;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+    }
+
+    h1 { font-size: 1.5rem; font-weight: 700; margin-bottom: 6px; color: #fff; }
+
+    .subtitle { font-size: 0.875rem; color: #6b7280; margin-bottom: 32px; }
+
+    label {
+      display: block;
+      font-size: 0.8rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #9ca3af;
+      margin-bottom: 8px;
+    }
+
+    .field { margin-bottom: 20px; }
+
+    textarea {
+      width: 100%;
+      background: #0f1117;
+      border: 1px solid #2d3148;
+      border-radius: 10px;
+      padding: 12px 16px;
+      color: #e2e8f0;
+      font-size: 0.95rem;
+      font-family: inherit;
+      outline: none;
+      resize: vertical;
+      min-height: 90px;
+      line-height: 1.6;
+      transition: border-color 0.2s;
+    }
+    textarea:focus { border-color: #6366f1; }
+
+    .hint { font-size: 0.75rem; color: #4b5563; margin-top: 6px; }
+
+    /* Upload */
+    .drop-zone {
+      border: 2px dashed #2d3148; border-radius: 12px;
+      padding: 48px 24px; text-align: center; cursor: pointer;
+      transition: border-color 0.2s, background 0.2s; position: relative;
+    }
+    .drop-zone:hover, .drop-zone.drag-over { border-color: #6366f1; background: #13152a; }
+    .drop-zone input[type="file"] { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
+    .drop-icon { font-size: 2.5rem; margin-bottom: 12px; }
+    .drop-title { font-size: 1rem; font-weight: 600; color: #e2e8f0; margin-bottom: 4px; }
+    .drop-hint { font-size: 0.8rem; color: #4b5563; }
+
+    .progress-section { margin-top: 20px; display: none; }
+    .progress-section.visible { display: block; }
+    .progress-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+    .progress-label { font-size: 0.8rem; font-weight: 600; color: #9ca3af; }
+    .progress-count { font-size: 0.8rem; color: #6b7280; }
+    .progress-bar-wrap { background: #0f1117; border-radius: 99px; height: 6px; overflow: hidden; }
+    .progress-bar { background: #6366f1; height: 100%; border-radius: 99px; width: 0%; transition: width 0.3s; }
+    .phase-label { margin-top: 8px; font-size: 0.8rem; color: #fbbf24; display: flex; align-items: center; gap: 6px; min-height: 20px; }
+
+    button.run-btn {
+      background: #6366f1;
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      padding: 12px 28px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      width: 100%;
+      margin-top: 16px;
+      transition: background 0.2s, transform 0.1s;
+    }
+    button.run-btn:hover { background: #4f51d0; }
+    button.run-btn:active { transform: scale(0.98); }
+    button.run-btn:disabled { background: #3d3f5e; cursor: not-allowed; }
+
+    /* ── Carousel ── */
+    .carousel-section { margin-top: 28px; display: none; }
+    .carousel-section.visible { display: block; }
+
+    .carousel-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+    .carousel-header label { margin: 0; }
+    .carousel-counter { font-size: 0.8rem; color: #6b7280; }
+
+    .carousel-track-wrap {
+      position: relative;
+      background: #0f1117;
+      border: 1px solid #2d3148;
+      border-radius: 10px;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 200px;
+    }
+
+    .carousel-img {
+      max-width: 100%;
+      max-height: 520px;
+      object-fit: contain;
+      display: block;
+    }
+
+    .carousel-btn {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      background: rgba(30,34,53,0.85);
+      border: 1px solid #3d3f5e;
+      color: #e2e8f0;
+      border-radius: 8px;
+      width: 36px;
+      height: 36px;
+      font-size: 1rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.15s;
+      z-index: 2;
+    }
+    .carousel-btn:hover { background: #2d3148; }
+    .carousel-btn.prev { left: 10px; }
+    .carousel-btn.next { right: 10px; }
+    .carousel-btn:disabled { opacity: 0.3; cursor: default; }
+
+    .carousel-dots {
+      display: flex;
+      justify-content: center;
+      gap: 6px;
+      margin-top: 8px;
+      flex-wrap: wrap;
+    }
+    .carousel-dot {
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: #2d3148;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .carousel-dot.active { background: #6366f1; }
+
+    /* ── Results split layout ── */
+    .results-section { display: none; margin-top: 28px; }
+    .results-section.visible { display: block; }
+
+    .results-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+    .results-header label { margin: 0; }
+
+    .results-columns {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      align-items: start;
+    }
+
+    /* Segment cards */
+    .segments-col-label {
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: #4b5563;
+      margin-bottom: 8px;
+    }
+
+    .segment-card {
+      background: #0f1117;
+      border: 1px solid #2d3148;
+      border-radius: 10px;
+      padding: 12px 14px;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      cursor: pointer;
+      transition: border-color 0.15s;
+    }
+    .segment-card:hover { border-color: #6366f1; }
+    .segment-card.active { border-color: #6366f1; background: #13152a; }
+
+    .segment-type-dot {
+      width: 10px; height: 10px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    #segments-col { max-height: 70vh; overflow-y: auto; }
+
+    .segment-info { flex: 1; min-width: 0; }
+    .segment-type {
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: #e2e8f0;
+      text-transform: capitalize;
+    }
+    .segment-pages {
+      font-size: 0.72rem;
+      color: #6b7280;
+      margin-top: 2px;
+    }
+    .segment-meta {
+      font-size: 0.7rem;
+      color: #4b5563;
+      margin-top: 2px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* JSON panel */
+    .json-col-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 8px;
+    }
+    .json-col-label {
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: #4b5563;
+    }
+
+    .json-box {
+      background: #0a0c14;
+      border: 1px solid #1e2235;
+      border-radius: 10px;
+      padding: 14px;
+      height: 70vh;
+      overflow-y: auto;
+      font-family: "SF Mono", "Fira Code", monospace;
+      font-size: 0.75rem;
+      line-height: 1.6;
+      white-space: pre-wrap;
+      word-break: break-all;
+      color: #a5b4fc;
+    }
+
+    /* ── Output section ── */
+    .output-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+      margin-top: 28px;
+    }
+    .output-header label { margin: 0; }
+
+    .header-actions { display: flex; gap: 8px; }
+
+    button.copy-btn, button.raw-btn {
+      background: #2d3148;
+      color: #a5b4fc;
+      border: 1px solid #3d3f5e;
+      border-radius: 8px;
+      padding: 6px 14px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s, color 0.2s;
+    }
+    button.copy-btn:hover, button.raw-btn:hover { background: #3d3f5e; color: #fff; }
+    button.copy-btn.copied { background: #14532d; color: #86efac; border-color: #166534; }
+    button.raw-btn.active { background: #3d3f5e; color: #fff; }
+
+    /* placeholder / error / loading */
+    .output-placeholder {
+      background: #0f1117;
+      border: 1px solid #2d3148;
+      border-radius: 10px;
+      padding: 40px 16px;
+      text-align: center;
+      color: #4b5563;
+      font-style: italic;
+      font-size: 0.9rem;
+    }
+
+    .output-error {
+      background: #0f1117;
+      border: 1px solid #7f1d1d;
+      border-radius: 10px;
+      padding: 16px;
+      color: #f87171;
+      font-family: "SF Mono", monospace;
+      font-size: 0.82rem;
+      white-space: pre-wrap;
+      word-break: break-all;
+    }
+
+    /* raw JSON view */
+    .raw-box {
+      background: #0f1117;
+      border: 1px solid #2d3148;
+      border-radius: 10px;
+      padding: 16px;
+      max-height: 500px;
+      overflow-y: auto;
+      font-family: "SF Mono", "Fira Code", monospace;
+      font-size: 0.8rem;
+      line-height: 1.6;
+      white-space: pre-wrap;
+      word-break: break-all;
+      color: #a5b4fc;
+    }
+
+    /* structured view */
+    .doc-type-section { margin-bottom: 20px; }
+
+    .doc-type-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .doc-type-badge {
+      background: #312e81;
+      color: #c7d2fe;
+      border: 1px solid #4338ca;
+      border-radius: 6px;
+      padding: 3px 12px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .doc-type-count {
+      font-size: 0.75rem;
+      color: #6b7280;
+    }
+
+    .doc-card {
+      background: #0f1117;
+      border: 1px solid #2d3148;
+      border-radius: 10px;
+      margin-bottom: 10px;
+      overflow: hidden;
+    }
+
+    .doc-card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 16px;
+      cursor: pointer;
+      user-select: none;
+      border-bottom: 1px solid transparent;
+      transition: background 0.15s;
+    }
+    .doc-card-header:hover { background: #161926; }
+    .doc-card-header.open { border-bottom-color: #2d3148; }
+
+    .doc-card-title {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #e2e8f0;
+    }
+
+    .page-badge {
+      background: #1e2235;
+      border: 1px solid #3d3f5e;
+      border-radius: 4px;
+      padding: 1px 8px;
+      font-size: 0.7rem;
+      color: #9ca3af;
+      font-weight: 500;
+    }
+
+    .chevron { color: #4b5563; font-size: 0.7rem; transition: transform 0.2s; }
+    .chevron.open { transform: rotate(90deg); }
+
+    .doc-card-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      padding: 8px 16px;
+      background: #13151f;
+    }
+
+    .meta-chip {
+      background: #1e2235;
+      border: 1px solid #2d3148;
+      border-radius: 5px;
+      padding: 2px 10px;
+      font-size: 0.72rem;
+      color: #9ca3af;
+    }
+    .meta-chip span { color: #c7d2fe; font-weight: 600; }
+
+    .doc-card-body { padding: 14px 16px; }
+
+    .section-label {
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: #4b5563;
+      margin-bottom: 6px;
+    }
+
+    .markdown-rendered {
+      font-size: 0.88rem;
+      line-height: 1.8;
+      color: #cbd5e1;
+      background: #0a0c14;
+      border: 1px solid #1e2235;
+      border-radius: 6px;
+      padding: 16px 18px;
+      max-height: 480px;
+      overflow-y: auto;
+      margin-bottom: 12px;
+      word-break: break-word;
+    }
+
+    .markdown-rendered h1, .markdown-rendered h2, .markdown-rendered h3 {
+      color: #e2e8f0;
+      margin: 14px 0 6px;
+      line-height: 1.3;
+    }
+    .markdown-rendered h1 { font-size: 1.1rem; border-bottom: 1px solid #2d3148; padding-bottom: 6px; }
+    .markdown-rendered h2 { font-size: 0.98rem; }
+    .markdown-rendered h3 { font-size: 0.88rem; color: #a5b4fc; }
+
+    .markdown-rendered p { margin: 8px 0; }
+
+    .markdown-rendered table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.8rem;
+      margin: 10px 0;
+    }
+    .markdown-rendered th {
+      background: #1e2235;
+      color: #a5b4fc;
+      padding: 6px 10px;
+      text-align: left;
+      border: 1px solid #2d3148;
+    }
+    .markdown-rendered td {
+      padding: 6px 10px;
+      border: 1px solid #1e2235;
+      color: #cbd5e1;
+      vertical-align: top;
+    }
+    .markdown-rendered tr:nth-child(even) td { background: #0d0f1a; }
+
+    .markdown-rendered img {
+      max-width: 100%;
+      border-radius: 4px;
+      border: 1px solid #2d3148;
+      opacity: 0.6;
+    }
+
+    .markdown-rendered code {
+      background: #1e2235;
+      padding: 1px 6px;
+      border-radius: 4px;
+      font-size: 0.8rem;
+      color: #a5b4fc;
+    }
+
+    .markdown-rendered ul, .markdown-rendered ol {
+      padding-left: 20px;
+      margin: 6px 0;
+    }
+
+    .markdown-rendered li { margin: 3px 0; }
+
+    .markdown-rendered hr {
+      border: none;
+      border-top: 1px solid #2d3148;
+      margin: 12px 0;
+    }
+
+    .markdown-rendered a { color: #818cf8; }
+
+    .img-placeholder {
+      display: inline-block;
+      background: #1e2235;
+      border: 1px dashed #3d3f5e;
+      border-radius: 4px;
+      padding: 2px 8px;
+      font-size: 0.75rem;
+      color: #6b7280;
+      font-style: italic;
+    }
+
+    .cb { font-size: 1rem; }
+    .cb.checked { color: #86efac; }
+
+    .annotation-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 6px;
+    }
+
+    .annotation-item {
+      background: #13151f;
+      border: 1px solid #1e2235;
+      border-radius: 6px;
+      padding: 6px 10px;
+    }
+
+    .annotation-key {
+      font-size: 0.68rem;
+      color: #6b7280;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      margin-bottom: 2px;
+    }
+
+    .annotation-value {
+      font-size: 0.8rem;
+      color: #e2e8f0;
+      word-break: break-word;
+    }
+
+    .annotation-value.true  { color: #86efac; }
+    .annotation-value.false { color: #f87171; }
+
+    .request-id {
+      margin-top: 16px;
+      font-size: 0.75rem;
+      color: #374151;
+      font-family: "SF Mono", monospace;
+    }
+
+    .spinner {
+      display: inline-block;
+      width: 10px; height: 10px;
+      border: 2px solid #6366f1;
+      border-top-color: transparent;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      vertical-align: middle;
+      margin-right: 6px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .loading-box {
+      background: #0f1117;
+      border: 1px solid #2d3148;
+      border-radius: 10px;
+      padding: 40px 16px;
+      text-align: center;
+      color: #fbbf24;
+      font-size: 0.9rem;
+    }
+
+    .status-row { margin-top: 10px; min-height: 22px; font-size: 0.8rem; color: #6b7280; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>Maestrox Segmentation</h1>
+    <p class="subtitle">Upload a PDF to classify and segment its pages</p>
+
+    <!-- PDF Upload -->
+    <div id="upload-section">
+      <div class="drop-zone" id="drop-zone">
+        <input type="file" id="pdf-input" accept="application/pdf" />
+        <div class="drop-icon">📄</div>
+        <div class="drop-title">Drop a PDF here or click to browse</div>
+        <div class="drop-hint">Pages will be extracted and analysed automatically</div>
+      </div>
+      <div class="progress-section" id="progress-section">
+        <div class="progress-header">
+          <span class="progress-label" id="progress-label">Processing…</span>
+          <span class="progress-count" id="progress-count"></span>
+        </div>
+        <div class="progress-bar-wrap">
+          <div class="progress-bar" id="progress-bar"></div>
+        </div>
+        <div class="phase-label" id="phase-label"></div>
+      </div>
+    </div>
+
+    <div class="carousel-section" id="carousel-section">
+      <div class="carousel-header">
+        <label>Pages</label>
+        <span class="carousel-counter" id="carousel-counter"></span>
+      </div>
+      <div class="carousel-track-wrap">
+        <button class="carousel-btn prev" id="carousel-prev" onclick="carouselMove(-1)">&#8249;</button>
+        <img class="carousel-img" id="carousel-img" src="" alt="Page" />
+        <button class="carousel-btn next" id="carousel-next" onclick="carouselMove(1)">&#8250;</button>
+      </div>
+      <div class="carousel-dots" id="carousel-dots"></div>
+    </div>
+
+    <!-- batch progress while loading -->
+    <div id="output-area" style="margin-top:28px">
+      <div class="output-placeholder">Result will appear here…</div>
+    </div>
+
+    <!-- results: segment cards + JSON -->
+    <div class="results-section" id="results-section">
+      <div class="results-header">
+        <label>Results</label>
+        <div class="header-actions">
+          <button class="raw-btn" id="raw-btn" onclick="toggleRaw()">Raw JSON</button>
+          <button class="copy-btn" id="copy-btn" onclick="copyOutput()">Copy All</button>
+        </div>
+      </div>
+      <div class="results-columns">
+        <div>
+          <div class="segments-col-label">Segments</div>
+          <div id="segments-col"></div>
+        </div>
+        <div>
+          <div class="json-col-header">
+            <span class="json-col-label">JSON</span>
+            <button class="copy-btn" style="padding:3px 10px;font-size:0.72rem" onclick="copyJson()">Copy JSON</button>
+          </div>
+          <div class="json-box" id="json-box">{}</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="status-row" id="status-row"></div>
+  </div>
+
+  <script>
+    const WORKFLOW_ID = '5425921a-99b9-485a-bf9c-b6c7943e918f';
+
+    let lastResult = null;
+    let showingRaw = false;
+    let carouselUrls = [];
+    let carouselIndex = 0;
+
+    function initCarousel(urls) {
+      carouselUrls = urls;
+      carouselIndex = 0;
+      const section = document.getElementById('carousel-section');
+      section.classList.add('visible');
+      renderCarouselDots();
+      updateCarousel();
+    }
+
+    function renderCarouselDots() {
+      const dots = document.getElementById('carousel-dots');
+      dots.innerHTML = carouselUrls.map((_, i) =>
+        `<div class="carousel-dot${i === 0 ? ' active' : ''}" onclick="carouselGoTo(${i})"></div>`
+      ).join('');
+    }
+
+    function updateCarousel() {
+      document.getElementById('carousel-img').src = carouselUrls[carouselIndex];
+      document.getElementById('carousel-counter').textContent = `${carouselIndex + 1} / ${carouselUrls.length}`;
+      document.getElementById('carousel-prev').disabled = carouselIndex === 0;
+      document.getElementById('carousel-next').disabled = carouselIndex === carouselUrls.length - 1;
+      document.querySelectorAll('.carousel-dot').forEach((d, i) =>
+        d.classList.toggle('active', i === carouselIndex));
+    }
+
+    function carouselMove(dir) {
+      carouselIndex = Math.max(0, Math.min(carouselUrls.length - 1, carouselIndex + dir));
+      updateCarousel();
+    }
+
+    function carouselGoTo(i) {
+      carouselIndex = i;
+      updateCarousel();
+    }
+
+    // Simple markdown renderer (no CDN dependency)
+    function renderMarkdown(md) {
+      let html = esc(md);
+      // headings
+      html = html.replace(/^### (.+)$/gm, '<h3>$1</h3>');
+      html = html.replace(/^## (.+)$/gm,  '<h2>$1</h2>');
+      html = html.replace(/^# (.+)$/gm,   '<h1>$1</h1>');
+      // bold / italic
+      html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+      html = html.replace(/\*(.+?)\*/g,     '<em>$1</em>');
+      // images — show alt text as label
+      html = html.replace(/!\[([^\]]*)\]\([^)]+\)/g, '<span class="img-placeholder">[ image: $1 ]</span>');
+      // links
+      html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank">$1</a>');
+      // horizontal rule
+      html = html.replace(/^---+$/gm, '<hr>');
+      // tables
+      html = html.replace(/(?:^[|].+\n)+/gm, match => {
+        const rows = match.trim().split('\n');
+        let out = '<table>';
+        rows.forEach((row, i) => {
+          if (/^\s*\|[-| :]+\|\s*$/.test(row)) return; // separator row
+          const cells = row.split('|').slice(1, -1);
+          const tag = i === 0 ? 'th' : 'td';
+          out += '<tr>' + cells.map(c => `<${tag}>${c.trim()}</${tag}>`).join('') + '</tr>';
+        });
+        return out + '</table>';
+      });
+      // checkboxes
+      html = html.replace(/☑/g, '<span class="cb checked">☑</span>');
+      html = html.replace(/☐/g, '<span class="cb">☐</span>');
+      // line breaks → paragraphs
+      html = html.split(/\n{2,}/).map(block => {
+        if (/^<(h[1-3]|table|hr|ul|ol)/.test(block.trim())) return block;
+        return `<p>${block.replace(/\n/g, '<br>')}</p>`;
+      }).join('\n');
+      return html;
+    }
+
+    function esc(str) {
+      return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    }
+
+    const BATCH_SIZE = 4;
+
+    // batch state: { status: 'pending'|'running'|'done'|'failed', requestId, result }
+    let batches = [];
+
+    function chunkArray(arr, size) {
+      const chunks = [];
+      for (let i = 0; i < arr.length; i += size) chunks.push(arr.slice(i, i + size));
+      return chunks;
+    }
+
+    async function runWorkflow(urls) {
+      if (!urls || !urls.length) { showError('No pages to analyse.'); return; }
+
+      showingRaw = false;
+      lastResult = null;
+      document.getElementById('raw-btn').classList.remove('active');
+      initCarousel(urls);
+
+      const chunks = chunkArray(urls, BATCH_SIZE);
+      batches = chunks.map((urls, i) => ({ index: i, urls, status: 'pending', requestId: null, result: null }));
+
+      showPhase('Classifying');
+
+      // Trigger + poll batches one at a time
+      for (let i = 0; i < batches.length; i++) {
+        await runBatch(batches[i], i);
+      }
+
+      const done = batches.filter(b => b.status === 'done').length;
+      console.log(`[run] All batches complete · ${done}/${batches.length} succeeded`);
+
+      showPhase('Segmenting');
+
+      const batchResults = batches.filter(b => b.result).map(b => ({ batch: b.index + 1, requestId: b.requestId, result: b.result }));
+      await triggerGroupedAndSave(urls, batchResults);
+    }
+
+    async function runBatch(batch, i) {
+      batch.status = 'running';
+      console.log(`[batch ${i+1}] Sending ${batch.urls.length} URLs`);
+
+      try {
+        const res = await fetch('/api/run', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ urls: batch.urls }),
+        });
+        const data = await res.json();
+
+        if (!res.ok || data.error) {
+          batch.status = 'failed';
+          batch.error = data.error || JSON.stringify(data);
+          return;
+        }
+
+        const requestId = data?.data?.executeWorkflow?.result?.requestId ?? null;
+
+        if (!requestId) {
+          batch.result = data?.data?.executeWorkflow?.result ?? data;
+          batch.status = 'done';
+          return;
+        }
+
+        batch.requestId = requestId;
+        const result = await pollBatch(batch, i);
+        batch.result = result ?? null;
+        batch.status = result ? 'done' : 'failed';
+
+      } catch (err) {
+        batch.status = 'failed';
+        batch.error = String(err);
+      }
+    }
+
+    async function pollBatch(batch, batchIdx) {
+      let attempts = 0;
+      while (attempts < 3600) {
+        await new Promise(r => setTimeout(r, 3000));
+        attempts++;
+        try {
+          const res = await fetch(`/api/status?requestId=${batch.requestId}`);
+          const data = await res.json();
+          const checkStatus = data?.data?.checkStatus;
+          const currentStatus = typeof checkStatus === 'object' ? checkStatus?.status : checkStatus;
+          console.log(`[batch ${batchIdx+1}] poll ${attempts} · ${currentStatus ?? 'unknown'}`);
+          if (!currentStatus) continue;
+          const s = currentStatus.toLowerCase();
+          if (['failed', 'error'].includes(s)) return null;
+          if (['completed', 'success', 'done'].includes(s)) return checkStatus?.result ?? checkStatus;
+        } catch (err) {
+          console.error(`[batch ${batchIdx+1}] poll ${attempts} error:`, err);
+        }
+      }
+      return null;
+    }
+
+    async function triggerGroupedAndSave(urls, batchResults) {
+      console.log('[grouped] Triggering grouped workflow…');
+      try {
+        const res = await fetch('/api/run-grouped', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ grouped_data: batchResults }),
+        });
+        const data = await res.json();
+        const requestId = data?.data?.executeWorkflow?.result?.requestId ?? null;
+        let groupedOutput = null;
+
+        if (!requestId) {
+          groupedOutput = data?.data?.executeWorkflow?.result ?? data;
+        } else {
+          console.log('[grouped] Polling requestId:', requestId);
+          groupedOutput = await pollSilent(requestId);
+        }
+
+        if (groupedOutput) {
+          renderGroupedOutput(groupedOutput);
+        }
+      } catch (e) {
+        console.error('[grouped] Error:', e);
+      }
+    }
+
+    function renderGroupedOutput(groupedOutput) {
+      const output = groupedOutput?.data?.output?.result?.output ?? null;
+      if (!output) return;
+
+      document.getElementById('results-section').classList.add('visible');
+      document.getElementById('output-area').innerHTML = '';
+
+      // Segment cards
+      const segCol = document.getElementById('segments-col');
+      segCol.innerHTML = Object.entries(output).map(([docType, segs], i) => {
+        const color = docTypeColor(docType);
+        const label = docType.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+        const segVals = Object.values(segs);
+        const startPage = Math.min(...segVals.map(s => s.start_page));
+        const endPage = Math.max(...segVals.map(s => s.end_page));
+        const totalPages = segVals.reduce((sum, s) => sum + (s.pages?.length ?? 0), 0);
+        return `<div class="segment-card${i === 0 ? ' active' : ''}" onclick="selectGroupedDoc('${docType}', this, ${startPage})">
+          <div class="segment-type-dot" style="background:${color}"></div>
+          <div class="segment-info">
+            <div class="segment-type">${esc(label)}</div>
+            <div class="segment-pages">Pages ${startPage} – ${endPage}</div>
+            <div class="segment-meta">${totalPages} pages · ${segVals.length} segment${segVals.length !== 1 ? 's' : ''}</div>
+          </div>
+        </div>`;
+      }).join('');
+
+      // JSON panel with anchors
+      const box = document.getElementById('json-box');
+      const entries = Object.entries(output);
+      let html = '<span style="color:#6b7280">{\n</span>';
+      entries.forEach(([key, val], i) => {
+        const comma = i < entries.length - 1 ? ',' : '';
+        const valStr = esc(JSON.stringify(val, null, 2)).replace(/\n/g, '\n  ');
+        html += `<span id="json-anchor-${esc(key)}" style="display:block;scroll-margin-top:8px">  <span style="color:#818cf8">"${esc(key)}"</span>: ${valStr}${comma}\n</span>`;
+      });
+      html += '<span style="color:#6b7280">}</span>';
+      box.innerHTML = html;
+    }
+
+    function selectGroupedDoc(docType, el, startPage) {
+      document.querySelectorAll('.segment-card').forEach(c => c.classList.remove('active'));
+      el.classList.add('active');
+      carouselGoTo(Math.max(0, startPage - 1));
+      const anchor = document.getElementById('json-anchor-' + docType);
+      if (anchor) anchor.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    async function pollSilent(requestId) {
+      for (let i = 0; i < 3600; i++) {
+        await new Promise(r => setTimeout(r, 3000));
+        try {
+          const res = await fetch(`/api/status?requestId=${requestId}`);
+          const data = await res.json();
+          const checkStatus = data?.data?.checkStatus;
+          const s = (typeof checkStatus === 'object' ? checkStatus?.status : checkStatus)?.toLowerCase();
+          console.log(`[grouped] poll ${i + 1}: ${s}`);
+          if (['failed', 'error'].includes(s)) return null;
+          if (['completed', 'success', 'done'].includes(s)) return checkStatus;
+        } catch (e) {
+          console.error('[grouped] poll error:', e);
+        }
+      }
+      return null;
+    }
+
+    async function saveRun(urls, batchResults, groupedOutput) {
+      try {
+        const res = await fetch('/api/save-run', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ urls, batchResults, groupedOutput }),
+        });
+        const data = await res.json();
+        console.log('[grouped] Run saved, id:', data.id);
+      } catch (e) {
+        console.error('[grouped] Save error:', e);
+      }
+    }
+
+    // Color map for doc types
+    const DOC_TYPE_COLORS = {
+      vesting_deed: '#6366f1', deed_notice: '#0ea5e9', policy: '#10b981',
+      searcher_sheet: '#f59e0b', other: '#6b7280', map: '#ec4899',
+      mortgage: '#8b5cf6', assignment_of_mortgage: '#14b8a6',
+      lis_pendens: '#f97316', tax_assessment: '#84cc16',
+    };
+
+    function docTypeColor(type) {
+      return DOC_TYPE_COLORS[type?.toLowerCase().replace(/ /g,'_')] || '#6b7280';
+    }
+
+    // Build a flat list of all pages with corrected page numbers + segment IDs from API
+    function getAllPages() {
+      const pages = [];
+      batches.forEach((batch, bi) => {
+        const pageOffset = bi * BATCH_SIZE;
+        const markdowns = batch.result?.data?.output?.result?.markdowns ?? batch.result?.markdowns ?? null;
+        // segment map: { docType: { segId: [pageNums] } }
+        const segmentMap = batch.result?.data?.output?.result?.output?.output ?? null;
+        if (!markdowns) return;
+
+        for (const [docType, docPages] of Object.entries(markdowns)) {
+          // Build reverse lookup: page_number → segmentId
+          const pageToSeg = {};
+          if (segmentMap?.[docType]) {
+            for (const [segId, pageNums] of Object.entries(segmentMap[docType])) {
+              pageNums.forEach(pn => { pageToSeg[pn] = segId; });
+            }
+          }
+          docPages.forEach(page => {
+            const correctedPage = page.page_number + pageOffset;
+            let annotation = {};
+            try { annotation = JSON.parse(page.document_annotation || '{}'); } catch {}
+            pages.push({
+              ...page,
+              page_number: correctedPage,
+              doc_type: docType,
+              annotation,
+              _batchIndex: bi,
+              _segmentId: pageToSeg[page.page_number] ?? '1',
+            });
+          });
+        }
+      });
+      pages.sort((a, b) => a.page_number - b.page_number);
+      return pages;
+    }
+
+    // Group pages by (batchIndex, segmentId, docType) — using API's own segment assignments
+    function buildSegments(pages) {
+      const map = new Map();
+      pages.forEach(page => {
+        const key = `${page._batchIndex}::${page._segmentId}::${page.doc_type}`;
+        if (!map.has(key)) {
+          map.set(key, { doc_type: page.doc_type, start_page: page.page_number, end_page: page.page_number, pages: [page] });
+        } else {
+          const seg = map.get(key);
+          seg.start_page = Math.min(seg.start_page, page.page_number);
+          seg.end_page = Math.max(seg.end_page, page.page_number);
+          seg.pages.push(page);
+        }
+      });
+      return Array.from(map.values()).sort((a, b) => a.start_page - b.start_page);
+    }
+
+    let allSegments = [];
+    let selectedSegmentIdx = 0;
+
+    function renderBatchStatus() {
+      // Show batch progress in output-area while running
+      const outputEl = document.getElementById('output-area');
+      let html = '';
+      batches.forEach((batch, i) => {
+        const icon = { pending: '⏳', running: '<span class="spinner"></span>', done: '✓', failed: '✗' }[batch.status];
+        const color = { pending: '#4b5563', running: '#fbbf24', done: '#86efac', failed: '#f87171' }[batch.status];
+        html += `<div style="display:flex;align-items:center;gap:8px;padding:6px 0;font-size:0.82rem">
+          <span style="color:${color}">${icon}</span>
+          <span style="color:#e2e8f0">Batch ${i+1}</span>
+          <span style="color:#4b5563;font-size:0.72rem">${batch.urls.length} pages</span>
+          ${batch.requestId ? `<span style="color:#374151;font-family:monospace;font-size:0.7rem">${batch.requestId}</span>` : ''}
+          ${batch.status === 'failed' ? `<span style="color:#f87171">${esc(batch.error||'failed')}</span>` : ''}
+        </div>`;
+      });
+      outputEl.innerHTML = `<div style="background:#0f1117;border:1px solid #2d3148;border-radius:10px;padding:16px">${html}</div>`;
+
+      // If any results are in, also render the results section
+      const hasResults = batches.some(b => b.result);
+      if (hasResults) renderResults();
+    }
+
+    function renderResults() {
+      document.getElementById('results-section').classList.add('visible');
+
+      const pages = getAllPages();
+      allSegments = buildSegments(pages);
+
+      // Render segment cards
+      const segCol = document.getElementById('segments-col');
+      segCol.innerHTML = allSegments.map((seg, i) => {
+        const color = docTypeColor(seg.doc_type);
+        const label = seg.doc_type.replace(/_/g,' ').replace(/\b\w/g, c => c.toUpperCase());
+        const firstPage = seg.pages[0];
+        const metaParts = [];
+        if (firstPage.annotation.doc_date && firstPage.annotation.doc_date !== 'N/A') metaParts.push(firstPage.annotation.doc_date);
+        if (firstPage.annotation.book_page && firstPage.annotation.book_page !== 'N/A') metaParts.push(firstPage.annotation.book_page);
+        return `<div class="segment-card${i === selectedSegmentIdx ? ' active' : ''}" onclick="selectSegment(${i})">
+          <div class="segment-type-dot" style="background:${color}"></div>
+          <div class="segment-info">
+            <div class="segment-type">${esc(label)}</div>
+            <div class="segment-pages">Pages ${seg.start_page} – ${seg.end_page}</div>
+            ${metaParts.length ? `<div class="segment-meta">${esc(metaParts.join(' · '))}</div>` : ''}
+          </div>
+        </div>`;
+      }).join('');
+
+      // Show JSON for selected segment
+      updateJsonPanel();
+    }
+
+    function selectSegment(idx) {
+      selectedSegmentIdx = idx;
+      document.querySelectorAll('.segment-card').forEach((c, i) => c.classList.toggle('active', i === idx));
+      // Jump carousel to first page of segment
+      const seg = allSegments[idx];
+      if (seg) carouselGoTo(seg.start_page - 1);
+    }
+
+    function buildCombinedJson() {
+      const documents = {};
+      const counters = {};
+      allSegments.forEach((seg) => {
+        // Convert snake_case → PascalCase (e.g. vesting_deed → VestingDeed)
+        const key = seg.doc_type.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join('');
+        if (!documents[key]) { documents[key] = {}; counters[key] = 1; }
+        const segNum = String(counters[key]++);
+        const ann = seg.pages[0]?.annotation || {};
+        const { page_quality, has_stamps_or_seals, has_tables_or_grids, is_map, is_first_page, ...dataFields } = ann;
+        documents[key][segNum] = {
+          ...dataFields,
+          _meta: { start_page: seg.start_page, end_page: seg.end_page },
+        };
+      });
+      return { documents };
+    }
+
+    function updateJsonPanel() {
+      document.getElementById('json-box').textContent = JSON.stringify(buildCombinedJson(), null, 2);
+    }
+
+    function showPhase(label) {
+      document.getElementById('output-area').innerHTML =
+        `<div class="loading-box"><span class="spinner"></span>${label}…</div>`;
+    }
+
+    function showError(msg) {
+      document.getElementById('output-area').innerHTML =
+        `<div class="output-error">${esc(msg)}</div>`;
+    }
+
+    function toggleRaw() {
+      const btn = document.getElementById('raw-btn');
+      showingRaw = !showingRaw;
+      btn.classList.toggle('active', showingRaw);
+      if (showingRaw) {
+        const allResults = batches.filter(b => b.result).map(b => ({ batch: b.index + 1, requestId: b.requestId, result: b.result }));
+        document.getElementById('json-box').textContent = JSON.stringify(allResults, null, 2);
+      } else {
+        updateJsonPanel();
+      }
+    }
+
+    function copyOutput() {
+      const allResults = batches.filter(b => b.result).map(b => ({ batch: b.index + 1, requestId: b.requestId, result: b.result }));
+      if (!allResults.length) return;
+      navigator.clipboard.writeText(JSON.stringify(allResults, null, 2)).then(() => {
+        const btn = document.getElementById('copy-btn');
+        btn.textContent = 'Copied!';
+        btn.classList.add('copied');
+        setTimeout(() => { btn.textContent = 'Copy All'; btn.classList.remove('copied'); }, 2000);
+      });
+    }
+
+    function copyJson() {
+      const text = document.getElementById('json-box').textContent;
+      navigator.clipboard.writeText(text).then(() => {
+        const btns = document.querySelectorAll('.copy-btn');
+        btns.forEach(b => { if (b.textContent === 'Copy JSON') { b.textContent = 'Copied!'; b.classList.add('copied'); setTimeout(() => { b.textContent = 'Copy JSON'; b.classList.remove('copied'); }, 2000); } });
+      });
+    }
+  </script>
+
+  <script type="module">
+    import * as mupdf from '/node_modules/mupdf/dist/mupdf.js';
+
+    const dz = document.getElementById('drop-zone');
+    const fileInput = document.getElementById('pdf-input');
+
+    dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('drag-over'); });
+    dz.addEventListener('dragleave', () => dz.classList.remove('drag-over'));
+    dz.addEventListener('drop', e => {
+      e.preventDefault(); dz.classList.remove('drag-over');
+      const file = e.dataTransfer.files[0];
+      if (file?.type === 'application/pdf') handlePdf(file);
+    });
+    fileInput.addEventListener('change', e => {
+      if (e.target.files[0]) handlePdf(e.target.files[0]);
+    });
+
+    async function handlePdf(file) {
+      const progressSection = document.getElementById('progress-section');
+      progressSection.classList.add('visible');
+      setProgress(0, 1, 'Reading PDF…');
+      setPhase('Reading PDF…');
+
+      const arrayBuffer = await file.arrayBuffer();
+      const data = new Uint8Array(arrayBuffer);
+      const doc = mupdf.Document.openDocument(data, 'application/pdf');
+      const total = doc.countPages();
+      const prefix = file.name.replace(/\.pdf$/i, '').replace(/[^a-zA-Z0-9_-]/g, '_');
+
+      setProgress(0, total, `Page 0 / ${total}`);
+
+      const uploadedUrls = [];
+
+      for (let p = 0; p < total; p++) {
+        const pageNum = p + 1;
+        setPhase(`Rendering page ${pageNum} of ${total}…`);
+        setProgress(p, total, `Page ${pageNum} / ${total}`);
+
+        try {
+          const page = doc.loadPage(p);
+          const scale = 2.0;
+          const pixmap = page.toPixmap(
+            [scale, 0, 0, scale, 0, 0],
+            mupdf.ColorSpace.DeviceRGB,
+            false,
+            true
+          );
+          const pngData = pixmap.asPNG();
+
+          setPhase(`Uploading page ${pageNum} of ${total}…`);
+          const filename = `pdf-pages/${prefix}--page-${pageNum}-${Date.now()}.png`;
+          const res = await fetch('/api/upload-page', {
+            method: 'POST',
+            headers: { 'x-filename': filename, 'Content-Type': 'image/png' },
+            body: pngData,
+          });
+          const { url, error } = await res.json();
+          if (error) throw new Error(error);
+          uploadedUrls.push(url);
+        } catch (err) {
+          console.error(`[upload] Page ${pageNum} failed:`, err);
+        }
+
+        setProgress(pageNum, total, `Page ${pageNum} / ${total}`);
+      }
+
+      setPhase('');
+      setProgress(total, total, `Uploaded ${uploadedUrls.length} of ${total} pages`);
+
+      if (uploadedUrls.length) {
+        // Hide drop zone and hand off to main workflow
+        document.getElementById('upload-section').style.display = 'none';
+        window.runWorkflow(uploadedUrls);
+      } else {
+        document.getElementById('progress-section').querySelector('.phase-label').textContent = 'Upload failed — no pages uploaded';
+      }
+    }
+
+    function setProgress(done, total, label) {
+      document.getElementById('progress-bar').style.width = `${total ? (done / total) * 100 : 0}%`;
+      document.getElementById('progress-count').textContent = `${done} / ${total}`;
+      if (label) document.getElementById('progress-label').textContent = label;
+    }
+
+    function setPhase(text) {
+      const el = document.getElementById('phase-label');
+      el.innerHTML = text ? `<span class="spinner"></span>${text}` : '';
+    }
+  </script>
+</body>
+</html>

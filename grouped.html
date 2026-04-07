@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Maestrox – Grouped Workflow</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: #0f1117;
+      color: #e2e8f0;
+      min-height: 100vh;
+      padding: 24px;
+    }
+
+    .card {
+      background: #1a1d27;
+      border: 1px solid #2d3148;
+      border-radius: 16px;
+      padding: 40px;
+      width: 100%;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+    }
+
+    h1 { font-size: 1.5rem; font-weight: 700; margin-bottom: 6px; color: #fff; }
+    .subtitle { font-size: 0.875rem; color: #6b7280; margin-bottom: 32px; }
+
+    label {
+      display: block;
+      font-size: 0.8rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #9ca3af;
+      margin-bottom: 8px;
+    }
+
+    .field { margin-bottom: 20px; }
+
+    textarea {
+      width: 100%;
+      background: #0f1117;
+      border: 1px solid #2d3148;
+      border-radius: 10px;
+      padding: 12px 16px;
+      color: #e2e8f0;
+      font-size: 0.88rem;
+      font-family: "SF Mono", "Fira Code", monospace;
+      outline: none;
+      resize: vertical;
+      min-height: 160px;
+      line-height: 1.6;
+      transition: border-color 0.2s;
+    }
+    textarea:focus { border-color: #6366f1; }
+    .hint { font-size: 0.75rem; color: #4b5563; margin-top: 6px; }
+
+    .input-error { color: #f87171; font-size: 0.78rem; margin-top: 6px; }
+
+    button.run-btn {
+      background: #6366f1;
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      padding: 12px 28px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      width: 100%;
+      margin-top: 4px;
+      transition: background 0.2s, transform 0.1s;
+    }
+    button.run-btn:hover { background: #4f51d0; }
+    button.run-btn:active { transform: scale(0.98); }
+    button.run-btn:disabled { background: #3d3f5e; cursor: not-allowed; }
+
+    /* ── Results split layout ── */
+    .results-section { display: none; margin-top: 32px; }
+    .results-section.visible { display: block; }
+
+    .results-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+    .results-header label { margin: 0; }
+    .header-actions { display: flex; gap: 8px; }
+
+    .results-columns {
+      display: grid;
+      grid-template-columns: 320px 1fr;
+      gap: 16px;
+      align-items: start;
+    }
+
+    /* Segment cards */
+    .segments-col-label {
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: #4b5563;
+      margin-bottom: 8px;
+    }
+
+    #segments-col { max-height: 70vh; overflow-y: auto; }
+
+    .segment-card {
+      background: #0f1117;
+      border: 1px solid #2d3148;
+      border-radius: 10px;
+      padding: 12px 14px;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      cursor: pointer;
+      transition: border-color 0.15s;
+    }
+    .segment-card:hover { border-color: #6366f1; }
+    .segment-card.active { border-color: #6366f1; background: #13152a; }
+
+    .segment-type-dot {
+      width: 10px; height: 10px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .segment-info { flex: 1; min-width: 0; }
+    .segment-type {
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: #e2e8f0;
+      text-transform: capitalize;
+    }
+    .segment-pages { font-size: 0.72rem; color: #6b7280; margin-top: 2px; }
+    .segment-meta {
+      font-size: 0.7rem; color: #4b5563; margin-top: 2px;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+
+    /* JSON panel */
+    .json-col-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 8px;
+    }
+    .json-col-label {
+      font-size: 0.7rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.06em; color: #4b5563;
+    }
+
+    .json-box {
+      background: #0a0c14;
+      border: 1px solid #1e2235;
+      border-radius: 10px;
+      padding: 14px;
+      height: 70vh;
+      overflow-y: auto;
+      font-family: "SF Mono", "Fira Code", monospace;
+      font-size: 0.75rem;
+      line-height: 1.6;
+      white-space: pre-wrap;
+      word-break: break-all;
+      color: #a5b4fc;
+    }
+
+    button.copy-btn, button.raw-btn {
+      background: #2d3148;
+      color: #a5b4fc;
+      border: 1px solid #3d3f5e;
+      border-radius: 8px;
+      padding: 6px 14px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s, color 0.2s;
+    }
+    button.copy-btn:hover, button.raw-btn:hover { background: #3d3f5e; color: #fff; }
+    button.copy-btn.copied { background: #14532d; color: #86efac; border-color: #166534; }
+    button.raw-btn.active { background: #3d3f5e; color: #fff; }
+
+    .output-placeholder {
+      background: #0f1117;
+      border: 1px solid #2d3148;
+      border-radius: 10px;
+      padding: 40px 16px;
+      text-align: center;
+      color: #4b5563;
+      font-style: italic;
+      font-size: 0.9rem;
+    }
+
+    .output-error {
+      background: #0f1117;
+      border: 1px solid #7f1d1d;
+      border-radius: 10px;
+      padding: 16px;
+      color: #f87171;
+      font-family: "SF Mono", monospace;
+      font-size: 0.82rem;
+      white-space: pre-wrap;
+      word-break: break-all;
+    }
+
+    .loading-box {
+      background: #0f1117;
+      border: 1px solid #2d3148;
+      border-radius: 10px;
+      padding: 40px 16px;
+      text-align: center;
+      color: #fbbf24;
+      font-size: 0.9rem;
+    }
+
+    .spinner {
+      display: inline-block;
+      width: 10px; height: 10px;
+      border: 2px solid #6366f1;
+      border-top-color: transparent;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      vertical-align: middle;
+      margin-right: 6px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .status-row { margin-top: 10px; min-height: 22px; font-size: 0.8rem; color: #6b7280; }
+
+    .doc-type-colors { display: none; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>Maestrox – Grouped Workflow</h1>
+    <p class="subtitle">Pass a JSON array to the grouped data workflow</p>
+
+    <div class="field">
+      <label>Grouped Data (JSON array)</label>
+      <textarea id="json-input" placeholder='[{"doc_type": "mortgage", "pages": [1,2,3]}, ...]'></textarea>
+      <p class="hint">Paste a valid JSON array — each element is an object</p>
+      <div id="input-error" class="input-error"></div>
+    </div>
+
+    <button class="run-btn" id="run-btn" onclick="runWorkflow()">Run</button>
+
+    <div id="output-area" style="margin-top:28px">
+      <div class="output-placeholder">Result will appear here…</div>
+    </div>
+
+    <div class="results-section" id="results-section">
+      <div class="results-header">
+        <label>Results</label>
+        <div class="header-actions">
+          <button class="raw-btn" id="raw-btn" onclick="toggleRaw()">Raw JSON</button>
+          <button class="copy-btn" id="copy-btn" onclick="copyOutput()">Copy JSON</button>
+        </div>
+      </div>
+      <div class="results-columns">
+        <div>
+          <div class="segments-col-label">Segments</div>
+          <div id="segments-col"></div>
+        </div>
+        <div>
+          <div class="json-col-header">
+            <span class="json-col-label">Output JSON</span>
+          </div>
+          <div class="json-box" id="json-box">{}</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="status-row" id="status-row"></div>
+  </div>
+
+  <script>
+    let lastResult = null;
+    let showingRaw = false;
+    let allSegments = [];
+    let selectedSegmentIdx = 0;
+
+    const DOC_TYPE_COLORS = {
+      vesting_deed: '#6366f1', deed_notice: '#0ea5e9', policy: '#10b981',
+      searcher_sheet: '#f59e0b', other: '#6b7280', map: '#ec4899',
+      mortgage: '#8b5cf6', assignment_of_mortgage: '#14b8a6',
+      lis_pendens: '#f97316', tax_assessment: '#84cc16',
+      master_deed_amendment: '#06b6d4', run_sheet: '#f59e0b',
+      order_form: '#a78bfa',
+    };
+
+    function docTypeColor(type) {
+      return DOC_TYPE_COLORS[type?.toLowerCase().replace(/ /g,'_')] || '#6b7280';
+    }
+
+    function esc(str) {
+      return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    }
+
+    async function runWorkflow() {
+      const btn = document.getElementById('run-btn');
+      const errEl = document.getElementById('input-error');
+      const status = document.getElementById('status-row');
+
+      errEl.textContent = '';
+      const raw = document.getElementById('json-input').value.trim();
+      if (!raw) { errEl.textContent = 'Please enter a JSON array.'; return; }
+
+      let grouped_data;
+      try { grouped_data = JSON.parse(raw); } catch (e) {
+        errEl.textContent = 'Invalid JSON: ' + e.message; return;
+      }
+      if (!Array.isArray(grouped_data)) {
+        errEl.textContent = 'Input must be a JSON array [ ... ]'; return;
+      }
+
+      btn.disabled = true;
+      showingRaw = false;
+      lastResult = null;
+      document.getElementById('raw-btn').classList.remove('active');
+      document.getElementById('results-section').classList.remove('visible');
+      document.getElementById('output-area').innerHTML =
+        `<div class="loading-box"><span class="spinner"></span>Triggering workflow…</div>`;
+
+      try {
+        const res = await fetch('/api/run-grouped', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ grouped_data }),
+        });
+        const data = await res.json();
+        if (!res.ok || data.error) throw new Error(data.error || JSON.stringify(data));
+
+        const requestId = data?.data?.executeWorkflow?.result?.requestId ?? null;
+
+        if (!requestId) {
+          // Realtime response — result is already here
+          lastResult = data?.data?.executeWorkflow?.result ?? data;
+          renderResults();
+          btn.disabled = false;
+          return;
+        }
+
+        status.textContent = `Polling… requestId: ${requestId}`;
+        document.getElementById('output-area').innerHTML =
+          `<div class="loading-box"><span class="spinner"></span>Polling for result…<br><small style="color:#4b5563;margin-top:6px;display:block">${requestId}</small></div>`;
+
+        lastResult = await poll(requestId, status);
+        if (lastResult) {
+          renderResults();
+        } else {
+          document.getElementById('output-area').innerHTML =
+            `<div class="output-error">Polling timed out or workflow failed.</div>`;
+        }
+
+      } catch (err) {
+        document.getElementById('output-area').innerHTML =
+          `<div class="output-error">${esc(String(err))}</div>`;
+      }
+
+      btn.disabled = false;
+    }
+
+    async function poll(requestId, statusEl) {
+      let attempts = 0;
+      while (attempts < 3600) {
+        await new Promise(r => setTimeout(r, 3000));
+        attempts++;
+        try {
+          const res = await fetch(`/api/status?requestId=${requestId}`);
+          const data = await res.json();
+          const checkStatus = data?.data?.checkStatus;
+          const currentStatus = typeof checkStatus === 'object' ? checkStatus?.status : checkStatus;
+          statusEl.textContent = `Poll ${attempts} · ${currentStatus ?? 'unknown'}`;
+          if (!currentStatus) continue;
+          const s = currentStatus.toLowerCase();
+          if (['failed','error'].includes(s)) return null;
+          if (['completed','success','done'].includes(s)) {
+            return checkStatus;
+          }
+        } catch (e) {
+          statusEl.textContent = `Poll ${attempts} error: ${e}`;
+        }
+      }
+      return null;
+    }
+
+    function getMarkdowns() {
+      return lastResult?.data?.output?.result?.markdowns
+          ?? lastResult?.markdowns
+          ?? null;
+    }
+
+    function getSegmentMap() {
+      return lastResult?.data?.output?.result?.output?.output ?? null;
+    }
+
+    function buildSegments() {
+      const markdowns = getMarkdowns();
+      const segmentMap = getSegmentMap();
+      if (!markdowns) return [];
+
+      const map = new Map();
+      for (const [docType, docPages] of Object.entries(markdowns)) {
+        const pageToSeg = {};
+        if (segmentMap?.[docType]) {
+          for (const [segId, pageNums] of Object.entries(segmentMap[docType])) {
+            pageNums.forEach(pn => { pageToSeg[pn] = segId; });
+          }
+        }
+        docPages.forEach(page => {
+          let annotation = {};
+          try { annotation = JSON.parse(page.document_annotation || '{}'); } catch {}
+          const segId = pageToSeg[page.page_number] ?? '1';
+          const key = `${segId}::${docType}`;
+          if (!map.has(key)) {
+            map.set(key, { doc_type: docType, start_page: page.page_number, end_page: page.page_number, pages: [], _segId: segId });
+          }
+          const seg = map.get(key);
+          seg.start_page = Math.min(seg.start_page, page.page_number);
+          seg.end_page = Math.max(seg.end_page, page.page_number);
+          seg.pages.push({ ...page, annotation });
+        });
+      }
+      return Array.from(map.values()).sort((a, b) => a.start_page - b.start_page);
+    }
+
+    function buildCombinedJson() {
+      const documents = {};
+      const counters = {};
+      allSegments.forEach((seg) => {
+        const key = seg.doc_type.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join('');
+        if (!documents[key]) { documents[key] = {}; counters[key] = 1; }
+        const segNum = String(counters[key]++);
+        const ann = seg.pages[0]?.annotation || {};
+        const { page_quality, has_stamps_or_seals, has_tables_or_grids, is_map, is_first_page, ...dataFields } = ann;
+        documents[key][segNum] = {
+          ...dataFields,
+          _meta: { start_page: seg.start_page, end_page: seg.end_page },
+        };
+      });
+      return { documents };
+    }
+
+    function renderResults() {
+      document.getElementById('output-area').innerHTML = '';
+      document.getElementById('results-section').classList.add('visible');
+
+      const output = lastResult?.data?.output?.result?.output ?? null;
+
+      if (!output) {
+        document.getElementById('results-section').classList.remove('visible');
+        document.getElementById('output-area').innerHTML =
+          `<div class="json-box" style="height:70vh">${esc(JSON.stringify(lastResult, null, 2))}</div>`;
+        return;
+      }
+
+      // Build cards from output keys
+      const segCol = document.getElementById('segments-col');
+      segCol.innerHTML = Object.entries(output).map(([docType, segments], i) => {
+        const color = docTypeColor(docType);
+        const label = docType.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+        const segVals = Object.values(segments);
+        const startPage = Math.min(...segVals.map(s => s.start_page));
+        const endPage = Math.max(...segVals.map(s => s.end_page));
+        const totalPages = segVals.reduce((sum, s) => sum + (s.pages?.length ?? 0), 0);
+        const segCount = segVals.length;
+        return `<div class="segment-card${i === 0 ? ' active' : ''}" onclick="selectDocType('${docType}', this)">
+          <div class="segment-type-dot" style="background:${color}"></div>
+          <div class="segment-info">
+            <div class="segment-type">${esc(label)}</div>
+            <div class="segment-pages">Pages ${startPage} – ${endPage}</div>
+            <div class="segment-meta">${totalPages} pages · ${segCount} segment${segCount !== 1 ? 's' : ''}</div>
+          </div>
+        </div>`;
+      }).join('');
+
+      updateJsonPanel(output);
+    }
+
+    function selectDocType(docType, el) {
+      document.querySelectorAll('.segment-card').forEach(c => c.classList.remove('active'));
+      el.classList.add('active');
+      // Scroll to the anchor in the json-box
+      const anchor = document.getElementById('json-anchor-' + docType);
+      if (anchor) anchor.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    function updateJsonPanel(output) {
+      if (!output) output = lastResult?.data?.output?.result?.output ?? null;
+      if (!output) return;
+
+      // Render JSON with per-key anchors so clicking a card scrolls to it
+      const box = document.getElementById('json-box');
+      const entries = Object.entries(output);
+      let html = '<span style="color:#6b7280">{\n</span>';
+      entries.forEach(([key, val], i) => {
+        const comma = i < entries.length - 1 ? ',' : '';
+        const valStr = esc(JSON.stringify(val, null, 2)).replace(/\n/g, '\n  ');
+        html += `<span id="json-anchor-${esc(key)}" style="display:block;scroll-margin-top:8px">  <span style="color:#818cf8">"${esc(key)}"</span>: ${valStr}${comma}\n</span>`;
+      });
+      html += '<span style="color:#6b7280">}</span>';
+      box.innerHTML = html;
+    }
+
+    function toggleRaw() {
+      const btn = document.getElementById('raw-btn');
+      showingRaw = !showingRaw;
+      btn.classList.toggle('active', showingRaw);
+      if (showingRaw) {
+        document.getElementById('json-box').textContent = JSON.stringify(lastResult, null, 2);
+      } else {
+        updateJsonPanel();
+      }
+    }
+
+    function copyOutput() {
+      const text = document.getElementById('json-box').textContent;
+      navigator.clipboard.writeText(text).then(() => {
+        const btn = document.getElementById('copy-btn');
+        btn.textContent = 'Copied!';
+        btn.classList.add('copied');
+        setTimeout(() => { btn.textContent = 'Copy JSON'; btn.classList.remove('copied'); }, 2000);
+      });
+    }
+  </script>
+</body>
+</html>

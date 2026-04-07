@@ -1,0 +1,1187 @@
+{
+  "searcher_sheet": {
+    "1": {
+      "start_page": 1,
+      "end_page": 3,
+      "pages": [
+        1,
+        2,
+        3
+      ],
+      "doc_date": "N/A",
+      "parties": "ANNA CWALINA, DARIUSZ ZOLADKIEWICZ, ANTHONY LUNDGREEN, PT",
+      "book_page": "17972/978, 17972/983",
+      "recording_info": "N/A"
+    }
+  },
+  "order_form": {
+    "1": {
+      "start_page": 4,
+      "end_page": 4,
+      "pages": [
+        4
+      ],
+      "doc_date": "N/A",
+      "parties": "ANTHONY LUNDGREEN, ANNA CWALINA, DARIUSZ ZOLADKIEWICZ, U.S. Bank National Association",
+      "book_page": "N/A",
+      "recording_info": "N/A"
+    }
+  },
+  "run_sheet": {
+    "1": {
+      "start_page": 5,
+      "end_page": 9,
+      "pages": [
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "doc_date": "N/A",
+      "parties": "IBRAHIM, SHERING, DIAB, GEORGETT, ANNA CWALINA, DARIUSZ ZOLADKIEWICZ",
+      "book_page": "4546/77, 2942/60, 3518/593, 3647/953, 126518",
+      "recording_info": "MTG 2942/60, CAN 04/07/1992, MTG 3518/593, CAN 11/10/1992, MTG 3647/953, CAN 09/08/1997, Board Date: 02/12/2026"
+    }
+  },
+    "map": {
+    "1": {
+      "start_page": 11,
+      "end_page": 12,
+      "pages": [
+       11,
+       12
+      ],
+      "doc_date": "N/A",
+      "parties": "N/A",
+      "book_page": "N/A",
+      "recording_info":"N/A" }
+  },
+  "tax_assessment": {
+    "1": {
+      "start_page": 10,
+      "end_page": 10,
+      "pages": [
+        10
+      ],
+      "doc_date": "N/A",
+      "parties": "LUNDGREN, ANTHONY, CARFORA, LINDORO & ROBIN, ALLEN, ROBERT & LAURA",
+      "book_page": "17972/00978, 16832/01488",
+      "recording_info": "N/A"
+    }
+  },
+  "vesting_deed": {
+    "1": {
+      "start_page": 13,
+      "end_page": 16,
+      "pages": [
+        13,
+        14,
+        15,
+        16
+      ],
+      "doc_date": "1987-04-21",
+      "parties": "UNION VALLEY CORPORATION, GEORGETT DIAS, JHAMMON, CLERK J. FOURSKI, ESQ., M. DEAN HAINES",
+      "book_page": "4477/161",
+      "recording_info": "084546-0077, RECORDED OCEAN COUNTY CLERK'S OFFICE 1746 PM MAY 4 1987"
+    },
+    "2": {
+      "start_page": 29,
+      "end_page": 31,
+      "pages": [
+        29,
+        30,
+        31
+      ],
+      "doc_date": "1998-10-22",
+      "parties": "SHERING IBRAHIM, EXECUTOR OF THE ESTATE OF GEORGETT DIAB, KATHLEEN DOWNEY",
+      "book_page": "N/A",
+      "recording_info": "REC JUN/23/1999 08:01AM 036536 M DEAN HAIRES OCEAN COUNTY CLERK 233.75"
+    },
+    "3": {
+      "start_page": 32,
+      "end_page": 36,
+      "pages": [
+        32,
+        34,
+        35,
+        36
+      ],
+      "doc_date": "2015-12-17",
+      "parties": "Kathleen Downey, Robert Allen, Laura Allen, Michael J. Weber",
+      "book_page": "16289/1077",
+      "recording_info": "INSTR # 2016003110, RECORDED 01/12/2016 09:27:46 AM, SCOTT M. COLABELLA, COUNTY CLERK, OCEAN COUNTY, NEW JERSEY"
+    },
+    "4": {
+      "start_page": 37,
+      "end_page": 41,
+      "pages": [
+        37,
+        38,
+        39,
+        40,
+        41
+      ],
+      "doc_date": "2017-08-04",
+      "parties": "Allen, Robert, Allen, Laura, Carfora, Lindoro, Carfora, Robin",
+      "book_page": "16832/1488",
+      "recording_info": "INSTR # 2017082871, OR BK 16832 PG 1488, RECORDED 08/10/2017 09:21:13 AM, RTF TOTAL TAX $536.00"
+    },
+    "5": {
+      "start_page": 42,
+      "end_page": 46,
+      "pages": [
+        42,
+        43,
+        44,
+        45,
+        46
+      ],
+      "doc_date": "2020-07-14",
+      "parties": "Carfora, Lindoro, Carfora, Robin, Lundgren, Anthony, Southern Shores Title Agency, LLC",
+      "book_page": "17972/978",
+      "recording_info": "INSTR # 2020075573, RECORDED 07/20/2020 10:04:23 AM, RTF TOTAL TAX $730.65"
+    }
+  },
+  "estate": {
+    "1": {
+      "start_page": 17,
+      "end_page": 17,
+      "pages": [
+        17
+      ],
+      "doc_date": "1997-05-22",
+      "parties": "Georgete Diab, Sherine E. Ibrahim, Mona Botros",
+      "book_page": "N/A",
+      "recording_info": "N/A"
+    },
+    "2": {
+      "start_page": 18,
+      "end_page": 22,
+      "pages": [
+        18,
+        19,
+        20,
+        21,
+        22
+      ],
+      "doc_date": "N/A",
+      "parties": "GEORGETE DIAB, MONA BOTROS, SHERINE E. IBRAHIM",
+      "book_page": "N/A",
+      "recording_info": "N/A"
+    },
+    "3": {
+      "start_page": 23,
+      "end_page": 23,
+      "pages": [
+        23
+      ],
+      "doc_date": "1997-05-27",
+      "parties": "Georgete Diab",
+      "book_page": "1471/93",
+      "recording_info": "N/A"
+    },
+    "4": {
+      "start_page": 24,
+      "end_page": 24,
+      "pages": [
+        24
+      ],
+      "doc_date": "1997-05-22",
+      "parties": "Sherine E. Ibrahim, Franklin V. Fischer, Georgete Diab",
+      "book_page": "N/A",
+      "recording_info": "N/A"
+    },
+    "5": {
+      "start_page": 25,
+      "end_page": 25,
+      "pages": [
+        25
+      ],
+      "doc_date": "1997-05-07",
+      "parties": "GEORGETT DIAB, DR. SHIRLEY HOH LIN, ELIZABETH HINES",
+      "book_page": "N/A",
+      "recording_info": "N/A"
+    },
+    "6": {
+      "start_page": 26,
+      "end_page": 26,
+      "pages": [
+        26
+      ],
+      "doc_date": "1997-05-27",
+      "parties": "Georgete Diab, Sherine E. Ibrahim",
+      "book_page": "N/A",
+      "recording_info": "N/A"
+    },
+    "7": {
+      "start_page": 27,
+      "end_page": 27,
+      "pages": [
+        27
+      ],
+      "doc_date": "1997-05-27",
+      "parties": "Georgette Diab, Sherine E. Ibrahim, Franklin V. Fischer",
+      "book_page": "N/A",
+      "recording_info": "N/A"
+    },
+    "8": {
+      "start_page": 28,
+      "end_page": 28,
+      "pages": [
+        28
+      ],
+      "doc_date": "N/A",
+      "parties": "Shorghtk Diab",
+      "book_page": "N/A",
+      "recording_info": "N/A"
+    }
+  },
+  "policy": {
+    "1": {
+      "start_page": 33,
+      "end_page": 33,
+      "pages": [
+        33
+      ],
+      "doc_date": "N/A",
+      "parties": "N/A",
+      "book_page": "16289/1078",
+      "recording_info": "Recorded on November 5, 1986 in the Ocean County Clerk's Office in Deed Book 4477, Page 4160"
+    },
+    "2": {
+      "start_page": 49,
+      "end_page": 49,
+      "pages": [
+        49
+      ],
+      "doc_date": "N/A",
+      "parties": "Old Republic National Title Insurance Company, American Land Title Association",
+      "book_page": "17972/985",
+      "recording_info": "N/A"
+    },
+    "3": {
+      "start_page": 60,
+      "end_page": 63,
+      "pages": [
+        60,
+        61,
+        62,
+        63
+      ],
+      "doc_date": "2002-01-05",
+      "parties": "William Westgate, Amy Westgate, William Modula, Donna Lammers-Modula, Ocean Title Service, Inc., Carol J. Gardner",
+      "book_page": "10665/723",
+      "recording_info": "OTS 08408, B28-0044466, 100/100'd 8067#, 201A88 3711A N800, 96:CI 1102'91'88"
+    }
+  },
+  "mortgage": {
+    "1": {
+      "start_page": 47,
+      "end_page": 58,
+      "pages": [
+        47,
+        48,
+        50,
+        51,
+        52,
+        53,
+        54,
+        55,
+        56,
+        57,
+        58
+      ],
+      "doc_date": "2020-07-15",
+      "parties": "Lundgren, Anthony, Valley National Bank",
+      "book_page": "17972/983",
+      "recording_info": "INSTR # 2020075574, RECORDED 07/20/2020 10:04:23 AM, OCEAN COUNTY, NEW JERSEY"
+    }
+  },
+  "master_deed": {
+    "1": {
+      "start_page": 59,
+      "end_page": 59,
+      "pages": [
+        59
+      ],
+      "doc_date": "N/A",
+      "parties": "N/A",
+      "book_page": "N/A",
+      "recording_info": "N/A"
+    },
+    "2": {
+      "start_page": 75,
+      "end_page": 79,
+      "pages": [
+        75,
+        76,
+        77,
+        78,
+        79
+      ],
+      "doc_date": "1983-10-21",
+      "parties": "Steven E. Hatch, Esq., Union Valley Corporation",
+      "book_page": "N/A",
+      "recording_info": "N/A"
+    },
+    "3": {
+      "start_page": 201,
+      "end_page": 201,
+      "pages": [
+        201
+      ],
+      "doc_date": "N/A",
+      "parties": "N/A",
+      "book_page": "16440/1294",
+      "recording_info": "N/A"
+    }
+  },
+  "easements_restrictions": {
+    "1": {
+      "start_page": 64,
+      "end_page": 64,
+      "pages": [
+        64
+      ],
+      "doc_date": "1945-09-12",
+      "parties": "Serge T. Zarrin, Nadine Zarrin, Hydro Zarrin, Jersey Central Power & Light Co., Harry L. Flagg",
+      "book_page": "N/A",
+      "recording_info": "N/A"
+    },
+    "2": {
+      "start_page": 65,
+      "end_page": 66,
+      "pages": [
+        65,
+        66
+      ],
+      "doc_date": "1963-11-26",
+      "parties": "Hudson Valley Corp., Mrs. L. H. Smith",
+      "book_page": "N/A",
+      "recording_info": "84385-0763"
+    },
+    "3": {
+      "start_page": 67,
+      "end_page": 67,
+      "pages": [
+        67
+      ],
+      "doc_date": "1984-02-15",
+      "parties": "SEVENTH COUNTY, INC., REPUBLIC EXAMINER, NEW JERSEY BELL TELEPHONE CO., GEORGE W. HENN, INC., J. W. HENN",
+      "book_page": "N/A",
+      "recording_info": "104385-0764"
+    },
+    "4": {
+      "start_page": 68,
+      "end_page": 68,
+      "pages": [
+        68
+      ],
+      "doc_date": "1979-10-03",
+      "parties": "Cristinne Village, Inc.",
+      "book_page": "4358-979",
+      "recording_info": "N/A"
+    },
+    "5": {
+      "start_page": 69,
+      "end_page": 69,
+      "pages": [
+        69
+      ],
+      "doc_date": "1950",
+      "parties": "OPP JONES MILL TILSTEINS COMPANY, Jackson Cable T.V., Raymond C. W., W. W., E. E., Merrill Pudock",
+      "book_page": "N/A",
+      "recording_info": "4385-0787, 4385-767"
+    },
+    "6": {
+      "start_page": 70,
+      "end_page": 73,
+      "pages": [
+        70,
+        71,
+        72,
+        73
+      ],
+      "doc_date": "1929-05",
+      "parties": "Quantum, Jersey Central Power & Light Company, Jersey Bell Telephone Company, Granton, Crawford, Bureau of Air Force Reserve, Herbert E. Wichnick",
+      "book_page": "4477/104, 4478/105, 4478/106",
+      "recording_info": "Instrument number: 101987, Recorded in Ocean County Clerk's office"
+    },
+    "7": {
+      "start_page": 74,
+      "end_page": 74,
+      "pages": [
+        74
+      ],
+      "doc_date": "1920-11-17",
+      "parties": "New Jersey Natural Gas Company, Union Valley Corporation, Ross W. W. Smith, R. H. H. Wood, William J. Sandack, Robert H. H. Wood, Joan Purocra",
+      "book_page": "N/A",
+      "recording_info": "N/A"
+    },
+    "8": {
+      "start_page": 226,
+      "end_page": 228,
+      "pages": [
+        226,
+        227,
+        228
+      ],
+      "doc_date": "1986-11-11",
+      "parties": "New Jersey Natural Gas Company, Union Valley Corporation, Ross Wishnick, Marjorie Gurdoct, Joan Purcaro",
+      "book_page": "N/A",
+      "recording_info": "4509-0080, County of Ocean, Realtor Transfer Fee, 2.38"
+    },
+    "9": {
+      "start_page": 232,
+      "end_page": 232,
+      "pages": [
+        232
+      ],
+      "doc_date": "2003-04-15",
+      "parties": "Board of Chosen Freeholders of Ocean County, Sixty Acre Reserve Condominium Association, Inc., Union Valley Corporation",
+      "book_page": "12749/142",
+      "recording_info": "N/A"
+    },
+    "10": {
+      "start_page": 236,
+      "end_page": 237,
+      "pages": [
+        236,
+        237
+      ],
+      "doc_date": "2003-04-15",
+      "parties": "Grantor, Board of Chosen Freeholders of Ocean County",
+      "book_page": "12750/52",
+      "recording_info": "N/A"
+    }
+  },
+  "master_deed_amendment": {
+    "1": {
+      "start_page": 80,
+      "end_page": 80,
+      "pages": [
+        80
+      ],
+      "doc_date": "N/A",
+      "parties": "SD Acre. Reserve Condominium Association",
+      "book_page": "N/A",
+      "recording_info": "004477-0272"
+    },
+    "2": {
+      "start_page": 81,
+      "end_page": 85,
+      "pages": [
+        81,
+        82,
+        83,
+        84,
+        85
+      ],
+      "doc_date": "1998-11-10",
+      "parties": "60 Acre Reserve Condominium Association, Inc., Board of Directors",
+      "book_page": "N/A",
+      "recording_info": "REC NOV/10/1998 08:49AM 091956 M DEAN HAINES OCEAN COUNTY CLERK 26.00"
+    },
+    "3": {
+      "start_page": 86,
+      "end_page": 88,
+      "pages": [
+        86,
+        87,
+        88
+      ],
+      "doc_date": "2005-03-21",
+      "parties": "60 Acre Reserve Condominium Association, Inc., R. Bruce Freeman, Esq.",
+      "book_page": "12544/670",
+      "recording_info": "INSTR # 2005058317, RECORDED 03/31/2005 10:50:46 AM, CARL W. BLOCK: COUNTY CLERK, OCEAN COUNTY: NEW JERSEY"
+    },
+    "4": {
+      "start_page": 89,
+      "end_page": 92,
+      "pages": [
+        89,
+        90,
+        91,
+        92
+      ],
+      "doc_date": "2005-04-21",
+      "parties": "R. Bruce Freeman, Esq., BURTZ, NEW JERSEY",
+      "book_page": "13544/0673, 4413/65, 5534/281, 4447/481, 4455/159, 4477/160, 4553/26, 4581/735, 4629/190, 4679/1, 4722/202",
+      "recording_info": "INSTR # 2005058318, RECORDED 6/21/2005 10:50:46 AF, C&R, W. BLACK, COUNTY CLERK"
+    },
+    "5": {
+      "start_page": 93,
+      "end_page": 95,
+      "pages": [
+        93,
+        94,
+        95
+      ],
+      "doc_date": "2005-12-12",
+      "parties": "60 Acre Reserve Condominium Association, Inc., R. Bruce Freeman Esq.",
+      "book_page": "13000/1839, 4413/65, 4435/281, 4447/481, 4455/159, 4477/160, 4553/26, 4581/735, 4629/190, 4679/1, 4722/202",
+      "recording_info": "OR BK 13000 PG 1839, RECORDED 01/13/2006 08:50:51 AM, CARL W. BLOCK, COUNTY CLERK, OCEAN COUNTY, NEW JERSEY"
+    },
+    "6": {
+      "start_page": 96,
+      "end_page": 99,
+      "pages": [
+        96,
+        97,
+        98,
+        99
+      ],
+      "doc_date": "2007-07-17",
+      "parties": "60 Acre Reserve Condominium Corporation, Inc., Unit Owners, Board of Directors",
+      "book_page": "13730/1136",
+      "recording_info": "INSTR # 2007104736 OR BK 13730 PG 1136 08/01/2007 09:31:48 AM, CARL W. BLOCK COUNTY CLERK, OCEAN COUNTY NEW JERSEY"
+    },
+    "7": {
+      "start_page": 100,
+      "end_page": 102,
+      "pages": [
+        100,
+        101,
+        102
+      ],
+      "doc_date": "2007-07-17",
+      "parties": "60 Acre Reserve Condominium Corporation, Inc., Mark D. Imbriani, Esq., Carl W. Block (County Clerk), Ocean County, New Jersey",
+      "book_page": "13730/1136, 13870/1853, 4413/65, 4435/281, 4477/481, 4553/159, 4477/160, 4553/26, 4581/735, 4629/190, 4679/1, 4722/202",
+      "recording_info": "INSTR # 2007104286, Re-Record, Revision May 16, 2007 10:40AM, 01/2007 09:31:48 AM"
+    },
+    "8": {
+      "start_page": 103,
+      "end_page": 106,
+      "pages": [
+        103,
+        104,
+        105,
+        106
+      ],
+      "doc_date": "2010-05-18",
+      "parties": "Mark B. Imbriani, Esq., 60 Acre Reserve Condominium Corporation, Inc.",
+      "book_page": "4413/65, 4435/281, 4447/481, 4455/159, 4477/160, 4553/26, 4581/735, 4629/190, 4679/1, 4722/202, 14613/1573",
+      "recording_info": "N/A"
+    },
+    "9": {
+      "start_page": 107,
+      "end_page": 115,
+      "pages": [
+        107,
+        108,
+        109,
+        110,
+        111,
+        112,
+        113,
+        114,
+        115
+      ],
+      "doc_date": "2012-02-14",
+      "parties": "SIXTY ACRE RESERVE CONDOMINIUM ASSOCIATION, INC., Joyce LaBrutto, Scott M. Colabella",
+      "book_page": "15115/1241",
+      "recording_info": "INSTR # 2012013960, BK 15115 PG 1241, 02/14/2012 10:28:01 AM, SCOTT M. COLABELLA COUNTY CLERK, OCEAN COUNTY NEW JERSEY"
+    },
+    "10": {
+      "start_page": 116,
+      "end_page": 124,
+      "pages": [
+        116,
+        117,
+        118,
+        119,
+        120,
+        121,
+        122,
+        123,
+        124
+      ],
+      "doc_date": "2014-06-20",
+      "parties": "Sixty Acre Reserve Condominium Association, Inc., Joseph A. Kutschman III, Esq.",
+      "book_page": "15831/97",
+      "recording_info": "INSTR # 2014052689, RECORDED 06/20/2014 09:26:08 AM, SCOTT M. COLABELLA, COUNTY CLERK, OCEAN COUNTY, NEW JERSEY"
+    },
+    "11": {
+      "start_page": 125,
+      "end_page": 133,
+      "pages": [
+        125,
+        126,
+        127,
+        128,
+        129,
+        130,
+        131,
+        132,
+        133
+      ],
+      "doc_date": "2014-06-20",
+      "parties": "Sixty Acre Reserve Condominium Association, Inc., Joseph A. Kutschman III, Chris Schonen",
+      "book_page": "15831/106",
+      "recording_info": "INSTR # 2014052690, RECORDED 06/20/2014 09:26:08 AM, SCOTT M. COLABELLA, COUNTY CLERK, OCEAN COUNTY, NEW JERSEY"
+    },
+    "12": {
+      "start_page": 134,
+      "end_page": 144,
+      "pages": [
+        134,
+        135,
+        136,
+        137,
+        138,
+        139,
+        140,
+        141,
+        142,
+        143,
+        144
+      ],
+      "doc_date": "2014-04-15",
+      "parties": "Joseph A. Kutschman III, Sixty Acre Reserve Condominium Association, Inc.",
+      "book_page": "15831/126",
+      "recording_info": "INSTR # 2014052692, RECORDED 06/20/2014 09:26:08 AM, SCOTT M. COLABELLA, COUNTY CLERK, OCEAN COUNTY, NEW JERSEY"
+    },
+    "13": {
+      "start_page": 145,
+      "end_page": 153,
+      "pages": [
+        145,
+        146,
+        147,
+        148,
+        149,
+        150,
+        151,
+        152,
+        153
+      ],
+      "doc_date": "2014-06-20",
+      "parties": "Sixty Acre Reserve Condominium Association, Inc., Joseph A. Kutschman III, Esq., Scott M. Colabella, County Clerk",
+      "book_page": "15831/137",
+      "recording_info": "INSTR # 2014052693, DR BK 15831 PG 137, RECORDED 06/20/2014 09:26:08 AM, OCEAN COUNTY, NEW JERSEY"
+    },
+    "14": {
+      "start_page": 154,
+      "end_page": 161,
+      "pages": [
+        154,
+        155,
+        156,
+        157,
+        158,
+        159,
+        160,
+        161
+      ],
+      "doc_date": "2014-06-20",
+      "parties": "Sixty Acre Reserve Condominium Association, Inc., Joseph A. Kutschman III, Esq., Scott M. Colabella, County Clerk, Ocean County, New Jersey",
+      "book_page": "15831/146",
+      "recording_info": "INSTR # 2014052694, RECORDED 06/20/2014 09:26:08 AM, SCOTT M. COLABELLA, COUNTY CLERK, OCEAN COUNTY, NEW JERSEY"
+    },
+    "15": {
+      "start_page": 162,
+      "end_page": 166,
+      "pages": [
+        162,
+        163,
+        164,
+        165,
+        166
+      ],
+      "doc_date": "2015-12-15",
+      "parties": "Jason N. Sena, Esq., Sixty Acre Reserve Condominium Association, Inc., Scott M. Colabella, County Clerk",
+      "book_page": "16266/1741",
+      "recording_info": "INSTR # 2015126428, RECORDED 12/15/2015 09:10:34 AM, 379.0191"
+    },
+    "16": {
+      "start_page": 167,
+      "end_page": 169,
+      "pages": [
+        167,
+        168,
+        169
+      ],
+      "doc_date": "2015-12-07",
+      "parties": "Sixty Acre Reserve Condominium Association, Inc., Taylor Management Company",
+      "book_page": "4413/65, 5534/281, 447/481, 455/159, 4477/160, 4553/26, 4581/735, 4629/190, 4679/1, 4722/202, 16266/1746",
+      "recording_info": "Instrument Number: 379.0191"
+    },
+    "17": {
+      "start_page": 170,
+      "end_page": 170,
+      "pages": [
+        170
+      ],
+      "doc_date": "2015-12-28",
+      "parties": "N/A",
+      "book_page": "16276/1382",
+      "recording_info": "Re-recorded on 12/28/2015"
+    },
+    "18": {
+      "start_page": 171,
+      "end_page": 178,
+      "pages": [
+        171,
+        172,
+        173,
+        174,
+        175,
+        176,
+        177,
+        178
+      ],
+      "doc_date": "2015-12-28",
+      "parties": "Jason N. Sena, Esq., Steven W. Ward, Esq., Sixty Acre Reserve Condominium Association, Inc.",
+      "book_page": "16276/1382, 16266/1741",
+      "recording_info": "INSTR # 2015130660, RECORDED 12/28/2015 08:03:55 AM, INSTR # 2015136428, RECORDED 12/15/2015 09:10:34 AM"
+    },
+    "19": {
+      "start_page": 179,
+      "end_page": 184,
+      "pages": [
+        179,
+        180,
+        181,
+        182,
+        183,
+        184
+      ],
+      "doc_date": "2015-12-07",
+      "parties": "Sixty Acre Reserve Condominium Association, Inc.",
+      "book_page": "16300/655",
+      "recording_info": "INSTR # 2016007577, RECORDED 01/26/2016 08:45:27 AM, SCOTT M. COLABELLA, COUNTY CLERK, OCEAN COUNTY, NEW JERSEY"
+    },
+    "20": {
+      "start_page": 185,
+      "end_page": 193,
+      "pages": [
+        185,
+        186,
+        187,
+        188,
+        189,
+        190,
+        191,
+        192,
+        193
+      ],
+      "doc_date": "N/A",
+      "parties": "SIXTY ACRE RESERVE CONDOMINIUM ASSOCIATION, INC., Daniel Dildine, Secretary",
+      "book_page": "4413/65, 5534/281, 447/481, 455/159, 4477/160, 4553/26, 4581/735, 4629/190, 4679/1, 4722/202, 16302/841",
+      "recording_info": "Recorded in the Office of the Clerk of Ocean County"
+    },
+    "21": {
+      "start_page": 194,
+      "end_page": 198,
+      "pages": [
+        194,
+        195,
+        196,
+        197,
+        198
+      ],
+      "doc_date": "N/A",
+      "parties": "Sixty Acre Reserve Condominium Association, Inc., Jason N. Sena, Esq., Daniel Bildine",
+      "book_page": "16306/399",
+      "recording_info": "379.0001"
+    },
+    "22": {
+      "start_page": 199,
+      "end_page": 208,
+      "pages": [
+        199,
+        200,
+        201,
+        202,
+        203,
+        204,
+        205,
+        206,
+        207,
+        208
+      ],
+      "doc_date": "2016-07-07",
+      "parties": "Jason N. Sena, Esq., Sixty Acre Reserve Condominium Association, Inc., Scott M. Colabella, County Clerk",
+      "book_page": "16440/1292",
+      "recording_info": "INSTR # 2016066105, RECORDED 07/07/2016 09:40:37 AM, 379.0191, $140 cash"
+    },
+    "23": {
+      "start_page": 209,
+      "end_page": 213,
+      "pages": [
+        209,
+        210,
+        211,
+        212,
+        213
+      ],
+      "doc_date": "2017-01-13",
+      "parties": "Hubert C. Cutolo, Esq., Sixty Acre Reserve Condominium Association, Inc., Scott M. Colabella",
+      "book_page": "16631/212",
+      "recording_info": "INSTR # 2017004996, RECORDED 01/13/2017 09:15:23 AM, SCOTT M. COLABELLA, COUNTY CLERK, OCEAN COUNTY, NEW JERSEY, 379.0191"
+    },
+    "24": {
+      "start_page": 214,
+      "end_page": 214,
+      "pages": [
+        214
+      ],
+      "doc_date": "1999-04-08",
+      "parties": "Charles Gavinelli, Sharon Wilson, Karin Patrick, 60 ACRE RESERVE CONDOMINIUM ASSOCIATION, INC.",
+      "book_page": "4113/65",
+      "recording_info": "REC OCT/25/1999 02:42PM 056461 N DEAN HILINES OCEAN COUNTY CLERK 556.89, Reed Book 4113, Page 65"
+    },
+    "25": {
+      "start_page": 215,
+      "end_page": 225,
+      "pages": [
+        215,
+        216,
+        217,
+        218,
+        219,
+        220,
+        221,
+        222,
+        223,
+        224,
+        225
+      ],
+      "doc_date": "2014-05-14",
+      "parties": "Sixty Acre Reserve Condominium Association, Inc., Chris Schaen, Joseph A. Kutschman III, Esq.",
+      "book_page": "15831/115",
+      "recording_info": "INSTR # 2014052691, RECORDED 06/20/2014 09:26:08 AM, Ocean County, New Jersey"
+    },
+    "26": {
+      "start_page": 239,
+      "end_page": 247,
+      "pages": [
+        239,
+        240,
+        241,
+        242,
+        243,
+        244,
+        245,
+        246,
+        247
+      ],
+      "doc_date": "N/A",
+      "parties": "SIXTY ACRE RESERVE CONDOMINIUM ASSOCIATION, INC., ANDREW STEIN, ESQ., Valerie Ryan",
+      "book_page": "4413/65, 5534/281, 447/481, 455/159, 4477/160, 4553/26, 4581/735, 4629/190, 4679/1, 4722/202",
+      "recording_info": "B_145200/D_1000"
+    },
+    "27": {
+      "start_page": 248,
+      "end_page": 257,
+      "pages": [
+        248,
+        249,
+        250,
+        251,
+        252,
+        253,
+        254,
+        255,
+        256,
+        257
+      ],
+      "doc_date": "02/27/2018",
+      "parties": "Sixty Acre Reserve Condominium Association, Inc., Cutolo Barros LLC",
+      "book_page": "17043/938",
+      "recording_info": "INSTR # 2018021213, RECORDED 03/06/2018 08:47:40 AM, ORIGINAL BOOK: 4413, ORIGINAL PAGE: 65"
+    },
+    "28": {
+      "start_page": 258,
+      "end_page": 267,
+      "pages": [
+        258,
+        259,
+        260,
+        261,
+        262,
+        263,
+        264,
+        265,
+        266,
+        267
+      ],
+      "doc_date": "2019-12-10",
+      "parties": "Sixty Acre Reserve Condominium Association, Inc.",
+      "book_page": "17727/1463",
+      "recording_info": "INSTR # 2019131190, RECORDED 12/23/2019 10:02:24 AM, ORIGINAL BOOK: 4722, ORIGINAL PAGE: 202"
+    },
+    "29": {
+      "start_page": 268,
+      "end_page": 280,
+      "pages": [
+        268,
+        269,
+        270,
+        271,
+        272,
+        273,
+        274,
+        275,
+        276,
+        277,
+        278,
+        279,
+        280
+      ],
+      "doc_date": "2019-12-10",
+      "parties": "Sixty Acre Reserve Condominium Association, Inc.",
+      "book_page": "17727/1473",
+      "recording_info": "INSTR # 2019131191, RECORDED 12/23/2019 10:02:24 AM, ORIGINAL BOOK: 4722, ORIGINAL PAGE: 202"
+    },
+    "30": {
+      "start_page": 281,
+      "end_page": 291,
+      "pages": [
+        281,
+        282,
+        283,
+        284,
+        285,
+        286,
+        287,
+        288,
+        289,
+        290,
+        291
+      ],
+      "doc_date": "2020-10-30",
+      "parties": "Sixty Acre Reserve Condominium Association, Inc., Sixty Acre Reserve condominium Association",
+      "book_page": "18169/448",
+      "recording_info": "INSTR # 2020139165, RECORDED 11/24/2020 10:29:02 AM, ORIGINAL BOOK: 4413, ORIGINAL PAGE: 0065"
+    },
+    "31": {
+      "start_page": 292,
+      "end_page": 298,
+      "pages": [
+        292,
+        293,
+        294,
+        295,
+        296,
+        297,
+        298
+      ],
+      "doc_date": "2021-01-12",
+      "parties": "Sixty Acre Reserve Condominium Association, Inc., Sixty Acre Reserve condominium Association",
+      "book_page": "18322/1332",
+      "recording_info": "INSTR # 2021026365, RECORDED 02/18/2021 08:26:04 AM, SCOTT M. COLABELLA, COUNTY CLERK OCEAN COUNTY, NEW JERSEY"
+    },
+    "32": {
+      "start_page": 299,
+      "end_page": 305,
+      "pages": [
+        299,
+        300,
+        301,
+        302,
+        303,
+        304,
+        305
+      ],
+      "doc_date": "2020-10-14",
+      "parties": "Sixty Acre Reserve Condominium Association, Inc., Sixty Acre Reserve Condominium Association",
+      "book_page": "18544/1801",
+      "recording_info": "INSTR # 2021093852, RECORDED 06/23/2021 09:28:06 AM, OR BK 18544 PG 1801"
+    },
+    "33": {
+      "start_page": 306,
+      "end_page": 311,
+      "pages": [
+        306,
+        307,
+        308,
+        309,
+        310,
+        311
+      ],
+      "doc_date": "2020-10-14",
+      "parties": "Sixty Acre Reserve Condominium Association, Inc., Sixty Acre Reserve Condominium Association Inc.",
+      "book_page": "18544/1808",
+      "recording_info": "INSTR # 2021093853, RECORDED 06/23/2021 09:28:06 AM, OR BK 18544 PG 1808"
+    },
+    "34": {
+      "start_page": 312,
+      "end_page": 318,
+      "pages": [
+        312,
+        313,
+        314,
+        315,
+        316,
+        317,
+        318
+      ],
+      "doc_date": "2020-10-14",
+      "parties": "Sixty Acre Reserve Condominium Association, Inc., Sixty Acre Reserve Condominium Association",
+      "book_page": "18544/1814",
+      "recording_info": "INSTR # 2021093854, RECORDED 06/23/2021 09:28:06 AM, ORIGINAL BOOK: 4413, ORIGINAL PAGE: 65"
+    },
+    "35": {
+      "start_page": 319,
+      "end_page": 335,
+      "pages": [
+        319,
+        320,
+        321,
+        322,
+        323,
+        324,
+        325,
+        326,
+        327,
+        328,
+        329,
+        330,
+        331,
+        332,
+        333,
+        334,
+        335
+      ],
+      "doc_date": "2024-03-04",
+      "parties": "SIXTY ACRE RESERVE CONDOMINIUM ASSOCIATION, FRANCIS MCGOVERN",
+      "book_page": "19620/1755",
+      "recording_info": "INSTR # 2024015753, RECORDED 03/04/2024 11:32:04 AM"
+    },
+    "36": {
+      "start_page": 336,
+      "end_page": 341,
+      "pages": [
+        336,
+        337,
+        338,
+        339,
+        340,
+        341
+      ],
+      "doc_date": "2024-11-01",
+      "parties": "SIXTY ACRE RESERVE CONDOMINIUM ASSOCIATION, FRANCIS MCGOVERN",
+      "book_page": "19835/535",
+      "recording_info": "INSTR # 2024081256 OR BK 19835 PG 535 RECORDED 11/01/2024 10:18:32 AM SCOTT M. COLABELLA, COUNTY CLERK OCEAN COUNTY, NEW JERSEY RECORDING FEES 75.00"
+    },
+    "37": {
+      "start_page": 342,
+      "end_page": 349,
+      "pages": [
+        342,
+        343,
+        344,
+        345,
+        346,
+        347,
+        348,
+        349
+      ],
+      "doc_date": "2024-11-22",
+      "parties": "FRANCIS MCGOVERN",
+      "book_page": "19856/1837",
+      "recording_info": "INSTR # 2024087509 OR BK 19856 PG 1837 RECORDED 11/22/2024 12:54:09 PM"
+    },
+    "38": {
+      "start_page": 350,
+      "end_page": 358,
+      "pages": [
+        350,
+        351,
+        352,
+        353,
+        354,
+        355,
+        356,
+        357,
+        358
+      ],
+      "doc_date": "2024-11-22",
+      "parties": "SIXTY ACRE RESERVE CONDOMINIUM ASSOCIATION, FRANCIS MCGOVERN",
+      "book_page": "19857/976",
+      "recording_info": "INSTR # 2024087638, RECORDED 11/25/2024 08:28:58 AM, Transaction Identification Number 7421344 9083252"
+    },
+    "39": {
+      "start_page": 359,
+      "end_page": 368,
+      "pages": [
+        359,
+        360,
+        361,
+        362,
+        363,
+        365,
+        366,
+        367,
+        368
+      ],
+      "doc_date": "2024-12-23",
+      "parties": "SIXTY ACRE RESERVE CONDOMINIUM ASSOCIATION, FRANCIS MCGOVERN",
+      "book_page": "19884/504",
+      "recording_info": "INSTR # 2024095532, OR BK 19884 PG 504, RECORDED 12/23/2024 01:27:25 PM, SCOTT M. COLABELLA, COUNTY CLERK OCEAN COUNTY, NEW JERSEY, TRANSACTION IDENTIFICATION NUMBER 7463175 9145537"
+    },
+    "40": {
+      "start_page": 369,
+      "end_page": 377,
+      "pages": [
+        369,
+        370,
+        371,
+        372,
+        373,
+        374,
+        375,
+        376,
+        377
+      ],
+      "doc_date": "2025-11-24",
+      "parties": "FRANCIS MCGOVERN, JOHN CATALANO, ACTING COUNTY CLERK",
+      "book_page": "20205/1750",
+      "recording_info": "INSTR # 2025093302, RECORDED 11/24/2025 09:01:24 AM, Recording Fee $105.00"
+    }
+  },
+  "declaration_of_taking": {
+    "1": {
+      "start_page": 229,
+      "end_page": 233,
+      "pages": [
+        229,
+        230,
+        231,
+        233
+      ],
+      "doc_date": "2005-07-28",
+      "parties": "County of Ocean, 60 Acre Reserve Condominium Association, Inc., Township of Jackson",
+      "book_page": "12749/139",
+      "recording_info": "INSTR # 2005140977, RECORDED 08/05/2005 09:55:18 AM, CARL W. BLOCK, COUNTY CLERK, OCEAN COUNTY, NEW JERSEY"
+    },
+    "2": {
+      "start_page": 234,
+      "end_page": 238,
+      "pages": [
+        234,
+        235,
+        238
+      ],
+      "doc_date": "2005-08-05",
+      "parties": "County of Ocean, 60 Acre Reserve Condominium Association, Inc., Township of Jackson",
+      "book_page": "12750/50",
+      "recording_info": "INSTR # 2005141192, RECORDED 08/05/2005 11:25:11 AM, CARL W. BLOCK, COUNTY CLERK, OCEAN COUNTY, NEW JERSEY"
+    }
+  },
+  "declaration_of_covenants_and_restrictions": {
+    "1": {
+      "start_page": 364,
+      "end_page": 364,
+      "pages": [
+        364
+      ],
+      "doc_date": "N/A",
+      "parties": "N/A",
+      "book_page": "19884/508",
+      "recording_info": "CFN 2024095532 O DOC TYPE DFED BK 19884 PG 508"
+    }
+  }
+}

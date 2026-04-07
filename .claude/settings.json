@@ -1,0 +1,20 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm init:*)",
+      "Bash(npm install:*)",
+      "Bash(node server.js)",
+      "Bash(pkill -f \"node server.js\")",
+      "Bash(node /Users/ramandeepsingh/maestrox-segmentation/server.js)",
+      "Bash(kill 97578)",
+      "Bash(curl -s -X POST http://localhost:3000/run -H \"Content-Type: application/json\" -d '{\"urls\":[\"https://test.com\"]}')",
+      "Bash(node -e \"const axios = require\\('axios'\\); console.log\\(axios.VERSION\\)\")",
+      "Bash(node -e ':*)",
+      "Bash(curl -s -X POST http://localhost:3000/run -H \"Content-Type: application/json\" -d '{\"urls\":[\"https://ojfcvdopllewdrqy.public.blob.vercel-storage.com/pdf-pages/PL4526-county_bookmarked--1--page-1-snoalGVpIVJMjm2aSkQctW0TapeC9r.png\"]}')",
+      "Bash(LAMATIC_API_KEY=lt-2520c9c3451c3fbc784f12d6fce3a2f0 vercel dev --listen 3000)",
+      "Bash(curl -s -X POST http://localhost:3000/api/run -H \"Content-Type: application/json\" -d '{\"urls\":[\"https://ojfcvdopllewdrqy.public.blob.vercel-storage.com/pdf-pages/PL4526-county_bookmarked--1--page-1-snoalGVpIVJMjm2aSkQctW0TapeC9r.png\"]}')",
+      "Bash(curl -s \"http://localhost:3000/api/status?requestId=7e88df9d-ffe5-4cb4-mniz2353-xeyu6xu3\")",
+      "Bash(vercel env:*)"
+    ]
+  }
+}
