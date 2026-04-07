@@ -1,6 +1,9 @@
 {
+  "outputDirectory": "public",
   "functions": {
     "api/run.js": { "maxDuration": 300 },
-    "api/status.js": { "maxDuration": 30 }
+    "api/status.js": { "maxDuration": 30 },
+    "api/run-grouped.js": { "maxDuration": 300 },
+    "api/upload-page.js": { "maxDuration": 60 }
   }
 }
