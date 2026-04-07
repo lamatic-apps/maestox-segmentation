@@ -745,7 +745,7 @@
       return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
     }
 
-    const BATCH_SIZE = 4;
+    const BATCH_SIZE = 8;
 
     // batch state: { status: 'pending'|'running'|'done'|'failed', requestId, result }
     let batches = [];
