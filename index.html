@@ -788,7 +788,7 @@
       const url = batch.urls[0];
       const page_number = i + 1;
       showPhase('Getting Data');
-      console.log(`[page ${page_number}] Step 1: metadata extraction`);
+      console.log(`[page ${page_number}] Step 1 request:`, { url, page_number });
 
       try {
         // Step 1: metadata extraction
@@ -820,7 +820,7 @@
         // Step 2: classify using extracted metadata
         const extracted_metadata = firstResult?.output ?? firstResult;
         showPhase('Classifying');
-        console.log(`[page ${page_number}] Step 2: classify`);
+        console.log(`[page ${page_number}] Step 2 request:`, { extracted_metadata, page_number });
 
         const res2 = await fetch('/api/run-classify', {
           method: 'POST',
