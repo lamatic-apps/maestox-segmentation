@@ -777,8 +777,6 @@
       // Show raw output from first request
       renderFirstRequestOutput();
 
-      showPhase('Segmenting');
-
       await triggerGroupedAndSave(buildPageData());
     }
 
@@ -897,6 +895,7 @@
     }
 
     async function triggerGroupedAndSave(pageData) {
+      showPhase('Segmenting');
       console.log('[grouped] Triggering grouped workflow…', pageData);
       try {
         const res = await fetch('/api/run-grouped', {
@@ -918,9 +917,12 @@
         if (groupedOutput) {
           lastResult = groupedOutput;
           renderGroupedOutput(groupedOutput);
+        } else {
+          document.getElementById('output-area').innerHTML = '';
         }
       } catch (e) {
         console.error('[grouped] Error:', e);
+        document.getElementById('output-area').innerHTML = '';
       }
     }
 
