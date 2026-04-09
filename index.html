@@ -818,7 +818,7 @@
         if (!firstResult) { batch.status = 'failed'; return; }
 
         // Step 2: classify using extracted metadata
-        const extracted_metadata = firstResult?.output ?? firstResult;
+        const extracted_metadata = firstResult?.data?.output?.result?.metadata_extraction?.output ?? firstResult;
         showPhase('Classifying');
         console.log(`[page ${page_number}] Step 2 request:`, { extracted_metadata, page_number });
 
