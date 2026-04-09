@@ -767,8 +767,6 @@
       // One batch per page
       batches = urls.map((url, i) => ({ index: i, urls: [url], status: 'pending', requestId: null, result: null }));
 
-      showPhase('Classifying');
-
       for (let i = 0; i < batches.length; i++) {
         await runBatch(batches[i], i);
       }
@@ -789,6 +787,7 @@
       batch.status = 'running';
       const url = batch.urls[0];
       const page_number = i + 1;
+      showPhase('Getting Data');
       console.log(`[page ${page_number}] Step 1: metadata extraction`);
 
       try {
@@ -820,6 +819,7 @@
 
         // Step 2: classify using extracted metadata
         const extracted_metadata = firstResult?.output ?? firstResult;
+        showPhase('Classifying');
         console.log(`[page ${page_number}] Step 2: classify`);
 
         const res2 = await fetch('/api/run-classify', {
