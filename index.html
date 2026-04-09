@@ -846,6 +846,8 @@
           classifyResult = await pollBatch(tmp, i);
         }
 
+        batch.extracted_metadata = extracted_metadata;
+        batch.doc_type = classifyResult?.data?.output?.result?.output?.doc_type ?? null;
         batch.result = classifyResult ?? null;
         batch.status = classifyResult ? 'done' : 'failed';
 
@@ -877,12 +879,24 @@
       return null;
     }
 
+    function buildPageData() {
+      const data = {};
+      batches.forEach(batch => {
+        if (batch.status === 'done') {
+          data[String(batch.index + 1)] = {
+            extracted_metadata: batch.extracted_metadata,
+            doc_type: batch.doc_type,
+          };
+        }
+      });
+      return data;
+    }
+
     function renderFirstRequestOutput() {
-      const results = batches.filter(b => b.result).map(b => b.result);
-      const output = results.length === 1 ? results[0] : results;
+      const pageData = buildPageData();
       document.getElementById('results-section').classList.add('visible');
       document.getElementById('output-area').innerHTML = '';
-      document.getElementById('json-box').textContent = JSON.stringify(output, null, 2);
+      document.getElementById('json-box').textContent = JSON.stringify(pageData, null, 2);
     }
 
     async function triggerGroupedAndSave(urls, batchResults) {
