@@ -764,18 +764,20 @@
       document.getElementById('raw-btn').classList.remove('active');
       initCarousel(urls);
 
-      const chunks = chunkArray(urls, BATCH_SIZE);
-      batches = chunks.map((urls, i) => ({ index: i, urls, status: 'pending', requestId: null, result: null }));
+      // One batch per page
+      batches = urls.map((url, i) => ({ index: i, urls: [url], status: 'pending', requestId: null, result: null }));
 
       showPhase('Classifying');
 
-      // Trigger + poll batches one at a time
       for (let i = 0; i < batches.length; i++) {
         await runBatch(batches[i], i);
       }
 
       const done = batches.filter(b => b.status === 'done').length;
-      console.log(`[run] All batches complete · ${done}/${batches.length} succeeded`);
+      console.log(`[run] All pages complete · ${done}/${batches.length} succeeded`);
+
+      // Show raw output from first request
+      renderFirstRequestOutput();
 
       showPhase('Segmenting');
 
@@ -785,13 +787,15 @@
 
     async function runBatch(batch, i) {
       batch.status = 'running';
-      console.log(`[batch ${i+1}] Sending ${batch.urls.length} URLs`);
+      const url = batch.urls[0];
+      const page_number = i + 1;
+      console.log(`[page ${page_number}] Sending url: ${url}`);
 
       try {
         const res = await fetch('/api/run', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ urls: batch.urls }),
+          body: JSON.stringify({ url, page_number }),
         });
         const data = await res.json();
 
@@ -840,6 +844,14 @@
         }
       }
       return null;
+    }
+
+    function renderFirstRequestOutput() {
+      const results = batches.filter(b => b.result).map(b => b.result);
+      const output = results.length === 1 ? results[0] : results;
+      document.getElementById('results-section').classList.add('visible');
+      document.getElementById('output-area').innerHTML = '';
+      document.getElementById('json-box').textContent = JSON.stringify(output, null, 2);
     }
 
     async function triggerGroupedAndSave(urls, batchResults) {
