@@ -880,16 +880,14 @@
     }
 
     function buildPageData() {
-      const data = {};
-      batches.forEach(batch => {
-        if (batch.status === 'done') {
-          data[String(batch.index + 1)] = {
+      return batches
+        .filter(b => b.status === 'done')
+        .map(batch => ({
+          [String(batch.index + 1)]: {
             extracted_metadata: batch.extracted_metadata,
             doc_type: batch.doc_type,
-          };
-        }
-      });
-      return data;
+          }
+        }));
     }
 
     function renderFirstRequestOutput() {
