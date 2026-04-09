@@ -862,6 +862,7 @@
         }
 
         if (groupedOutput) {
+          lastResult = groupedOutput;
           renderGroupedOutput(groupedOutput);
         }
       } catch (e) {
@@ -1113,17 +1114,15 @@
       showingRaw = !showingRaw;
       btn.classList.toggle('active', showingRaw);
       if (showingRaw) {
-        const allResults = batches.filter(b => b.result).map(b => ({ batch: b.index + 1, requestId: b.requestId, result: b.result }));
-        document.getElementById('json-box').textContent = JSON.stringify(allResults, null, 2);
+        document.getElementById('json-box').textContent = JSON.stringify(lastResult, null, 2);
       } else {
         updateJsonPanel();
       }
     }
 
     function copyOutput() {
-      const allResults = batches.filter(b => b.result).map(b => ({ batch: b.index + 1, requestId: b.requestId, result: b.result }));
-      if (!allResults.length) return;
-      navigator.clipboard.writeText(JSON.stringify(allResults, null, 2)).then(() => {
+      if (!lastResult) return;
+      navigator.clipboard.writeText(JSON.stringify(lastResult, null, 2)).then(() => {
         const btn = document.getElementById('copy-btn');
         btn.textContent = 'Copied!';
         btn.classList.add('copied');
