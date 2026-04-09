@@ -6,13 +6,11 @@ const query = `
 query ExecuteWorkflow(
   $workflowId: String!
   $grouped_data: [JSON]
-  $url: [String]
 ) {
   executeWorkflow(
     workflowId: $workflowId
     payload: {
       grouped_data: $grouped_data
-      url: $url
     }
   ) {
     status
@@ -23,12 +21,11 @@ query ExecuteWorkflow(
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).end();
 
-  const { grouped_data, url } = req.body;
+  const { grouped_data } = req.body;
 
   const variables = {
     workflowId: '22ae8f3a-ea12-43e5-a761-568beeba4076',
     grouped_data,
-    url,
   };
 
   const options = {

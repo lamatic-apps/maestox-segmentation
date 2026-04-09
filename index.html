@@ -779,8 +779,7 @@
 
       showPhase('Segmenting');
 
-      const batchResults = batches.filter(b => b.result).map(b => ({ batch: b.index + 1, requestId: b.requestId, result: b.result }));
-      await triggerGroupedAndSave(urls, batchResults);
+      await triggerGroupedAndSave(buildPageData());
     }
 
     async function runBatch(batch, i) {
@@ -897,13 +896,13 @@
       document.getElementById('json-box').textContent = JSON.stringify(pageData, null, 2);
     }
 
-    async function triggerGroupedAndSave(urls, batchResults) {
-      console.log('[grouped] Triggering grouped workflow…');
+    async function triggerGroupedAndSave(pageData) {
+      console.log('[grouped] Triggering grouped workflow…', pageData);
       try {
         const res = await fetch('/api/run-grouped', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ grouped_data: batchResults, url: urls }),
+          body: JSON.stringify({ grouped_data: pageData }),
         });
         const data = await res.json();
         const requestId = data?.data?.executeWorkflow?.result?.requestId ?? null;
@@ -927,48 +926,85 @@
 
     function renderGroupedOutput(groupedOutput) {
       const output = groupedOutput?.data?.output?.result?.output ?? null;
-      if (!output || Object.keys(output).length === 0) return;
+      if (!output) return;
+
+      // Detect format: array of {doc_type, pages} vs legacy object
+      const isArray = Array.isArray(output);
+      const isEmpty = isArray ? output.length === 0 : Object.keys(output).length === 0;
+      if (isEmpty) return;
 
       document.getElementById('results-section').classList.add('visible');
       document.getElementById('output-area').innerHTML = '';
 
-      // Segment cards
       const segCol = document.getElementById('segments-col');
-      segCol.innerHTML = Object.entries(output).map(([docType, segs], i) => {
-        const color = docTypeColor(docType);
-        const label = docType.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
-        const segVals = Object.values(segs);
-        const startPage = Math.min(...segVals.map(s => s.start_page));
-        const endPage = Math.max(...segVals.map(s => s.end_page));
-        const totalPages = segVals.reduce((sum, s) => sum + (s.pages?.length ?? 0), 0);
-        return `<div class="segment-card${i === 0 ? ' active' : ''}" onclick="selectGroupedDoc('${docType}', this, ${startPage})">
-          <div class="segment-type-dot" style="background:${color}"></div>
-          <div class="segment-info">
-            <div class="segment-type">${esc(label)}</div>
-            <div class="segment-pages">Pages ${startPage} – ${endPage}</div>
-            <div class="segment-meta">${totalPages} pages · ${segVals.length} segment${segVals.length !== 1 ? 's' : ''}</div>
-          </div>
-        </div>`;
-      }).join('');
-
-      // JSON panel with anchors
       const box = document.getElementById('json-box');
-      const entries = Object.entries(output);
-      let html = '<span style="color:#6b7280">{\n</span>';
-      entries.forEach(([key, val], i) => {
-        const comma = i < entries.length - 1 ? ',' : '';
-        const valStr = esc(JSON.stringify(val, null, 2)).replace(/\n/g, '\n  ');
-        html += `<span id="json-anchor-${esc(key)}" style="display:block;scroll-margin-top:8px">  <span style="color:#818cf8">"${esc(key)}"</span>: ${valStr}${comma}\n</span>`;
-      });
-      html += '<span style="color:#6b7280">}</span>';
-      box.innerHTML = html;
+
+      if (isArray) {
+        // New format: [{doc_type, pages:[{page_number,...}]}, ...]
+        segCol.innerHTML = output.map((doc, i) => {
+          const docType = doc.doc_type ?? 'unknown';
+          const pages = doc.pages ?? [];
+          const color = docTypeColor(docType);
+          const label = docType.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+          const pageNums = pages.map(p => p.page_number).filter(Boolean);
+          const firstPage = pageNums.length ? Math.min(...pageNums) : 1;
+          const lastPage  = pageNums.length ? Math.max(...pageNums) : firstPage;
+          const rangeStr  = firstPage === lastPage ? `Page ${firstPage}` : `Pages ${firstPage} – ${lastPage}`;
+          return `<div class="segment-card${i === 0 ? ' active' : ''}" onclick="selectGroupedDoc('doc-${i}', this, ${firstPage})">
+            <div class="segment-type-dot" style="background:${color}"></div>
+            <div class="segment-info">
+              <div class="segment-type">${esc(label)}</div>
+              <div class="segment-pages">${rangeStr}</div>
+              <div class="segment-meta">${pages.length} page${pages.length !== 1 ? 's' : ''}</div>
+            </div>
+          </div>`;
+        }).join('');
+
+        let html = '<span style="color:#6b7280">[\n</span>';
+        output.forEach((doc, i) => {
+          const comma = i < output.length - 1 ? ',' : '';
+          const valStr = esc(JSON.stringify(doc, null, 2)).replace(/\n/g, '\n  ');
+          html += `<span id="json-anchor-doc-${i}" style="display:block;scroll-margin-top:8px">  ${valStr}${comma}\n</span>`;
+        });
+        html += '<span style="color:#6b7280">]</span>';
+        box.innerHTML = html;
+
+      } else {
+        // Legacy format: { docType: { segId: { start_page, end_page, pages } } }
+        segCol.innerHTML = Object.entries(output).map(([docType, segs], i) => {
+          const color = docTypeColor(docType);
+          const label = docType.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+          const segVals = Object.values(segs);
+          const startPage = Math.min(...segVals.map(s => s.start_page));
+          const endPage   = Math.max(...segVals.map(s => s.end_page));
+          const totalPages = segVals.reduce((sum, s) => sum + (s.pages?.length ?? 0), 0);
+          return `<div class="segment-card${i === 0 ? ' active' : ''}" onclick="selectGroupedDoc('${docType}', this, ${startPage})">
+            <div class="segment-type-dot" style="background:${color}"></div>
+            <div class="segment-info">
+              <div class="segment-type">${esc(label)}</div>
+              <div class="segment-pages">Pages ${startPage} – ${endPage}</div>
+              <div class="segment-meta">${totalPages} pages · ${segVals.length} segment${segVals.length !== 1 ? 's' : ''}</div>
+            </div>
+          </div>`;
+        }).join('');
+
+        const entries = Object.entries(output);
+        let html = '<span style="color:#6b7280">{\n</span>';
+        entries.forEach(([key, val], i) => {
+          const comma = i < entries.length - 1 ? ',' : '';
+          const valStr = esc(JSON.stringify(val, null, 2)).replace(/\n/g, '\n  ');
+          html += `<span id="json-anchor-${esc(key)}" style="display:block;scroll-margin-top:8px">  <span style="color:#818cf8">"${esc(key)}"</span>: ${valStr}${comma}\n</span>`;
+        });
+        html += '<span style="color:#6b7280">}</span>';
+        box.innerHTML = html;
+      }
     }
 
-    function selectGroupedDoc(docType, el, startPage) {
+    function selectGroupedDoc(anchorKey, el, firstPageNum) {
       document.querySelectorAll('.segment-card').forEach(c => c.classList.remove('active'));
       el.classList.add('active');
-      carouselGoTo(Math.max(0, startPage - 1));
-      const anchor = document.getElementById('json-anchor-' + docType);
+      carouselGoTo(Math.max(0, firstPageNum - 1));
+      const anchor = document.getElementById('json-anchor-' + anchorKey);
       if (anchor) anchor.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
 
