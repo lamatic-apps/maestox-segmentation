@@ -789,34 +789,65 @@
       batch.status = 'running';
       const url = batch.urls[0];
       const page_number = i + 1;
-      console.log(`[page ${page_number}] Sending url: ${url}`);
+      console.log(`[page ${page_number}] Step 1: metadata extraction`);
 
       try {
-        const res = await fetch('/api/run', {
+        // Step 1: metadata extraction
+        const res1 = await fetch('/api/run', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ url, page_number }),
         });
-        const data = await res.json();
+        const data1 = await res1.json();
 
-        if (!res.ok || data.error) {
+        if (!res1.ok || data1.error) {
           batch.status = 'failed';
-          batch.error = data.error || JSON.stringify(data);
+          batch.error = data1.error || JSON.stringify(data1);
           return;
         }
 
-        const requestId = data?.data?.executeWorkflow?.result?.requestId ?? null;
+        const requestId1 = data1?.data?.executeWorkflow?.result?.requestId ?? null;
+        let firstResult = null;
 
-        if (!requestId) {
-          batch.result = data?.data?.executeWorkflow?.result ?? data;
-          batch.status = 'done';
+        if (!requestId1) {
+          firstResult = data1?.data?.executeWorkflow?.result ?? data1;
+        } else {
+          batch.requestId = requestId1;
+          firstResult = await pollBatch(batch, i);
+        }
+
+        if (!firstResult) { batch.status = 'failed'; return; }
+
+        // Step 2: classify using extracted metadata
+        const extracted_metadata = firstResult?.output ?? firstResult;
+        console.log(`[page ${page_number}] Step 2: classify`);
+
+        const res2 = await fetch('/api/run-classify', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ extracted_metadata, page_number }),
+        });
+        const data2 = await res2.json();
+
+        if (!res2.ok || data2.error) {
+          batch.status = 'failed';
+          batch.error = data2.error || JSON.stringify(data2);
           return;
         }
 
-        batch.requestId = requestId;
-        const result = await pollBatch(batch, i);
-        batch.result = result ?? null;
-        batch.status = result ? 'done' : 'failed';
+        const requestId2 = data2?.data?.executeWorkflow?.result?.requestId ?? null;
+        let classifyResult = null;
+
+        if (!requestId2) {
+          classifyResult = data2?.data?.executeWorkflow?.result ?? data2;
+        } else {
+          // poll classify using a temp object
+          const tmp = { requestId: requestId2 };
+          classifyResult = await pollBatch(tmp, i);
+        }
+
+        batch.result = classifyResult ?? null;
+        batch.status = classifyResult ? 'done' : 'failed';
 
       } catch (err) {
         batch.status = 'failed';
