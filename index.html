@@ -848,7 +848,7 @@
         const res = await fetch('/api/run-grouped', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ grouped_data: batchResults }),
+          body: JSON.stringify({ grouped_data: batchResults, url: urls }),
         });
         const data = await res.json();
         const requestId = data?.data?.executeWorkflow?.result?.requestId ?? null;
