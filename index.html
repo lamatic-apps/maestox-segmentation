@@ -787,9 +787,7 @@
       for (let i = 0; i < urls.length; i += 50) {
         urlChunks.push(urls.slice(i, i + 50).map((url, j) => ({ url, page_number: i + j + 1 })));
       }
-      for (let i = 0; i < urlChunks.length; i += 4) {
-        await Promise.all(urlChunks.slice(i, i + 4).map(chunk => runStep1Batch(chunk)));
-      }
+      await Promise.all(urlChunks.map(chunk => runStep1Batch(chunk)));
 
       // Step 2: classify sequentially so previous_page is available
       showPhase('Classifying');
