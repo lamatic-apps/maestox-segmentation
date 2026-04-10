@@ -1099,19 +1099,14 @@
       }
 
       const total = tasks.length;
+      let done = 0;
+      statusEl.innerHTML = `<span class="spinner"></span>Extracting ${total} segment${total !== 1 ? 's' : ''} in parallel…`;
 
-      for (let t = 0; t < tasks.length; t++) {
-        const { docType, segId, segData } = tasks[t];
-        statusEl.innerHTML = `<span class="spinner"></span>Extracting <strong>${docType}</strong> segment ${segId} (${t + 1}/${total})…`;
-
-        // Build url list from page numbers in this segment
+      await Promise.all(tasks.map(async ({ docType, segId, segData }) => {
         const pages = segData.pages ?? [];
-        const urls = pages
-          .map(p => carouselUrls[p.page_number - 1])
-          .filter(Boolean);
-
+        const urls = pages.map(p => carouselUrls[p.page_number - 1]).filter(Boolean);
         const input_data = { [docType]: { [segId]: segData } };
-        console.log(`[extraction] task ${t + 1}/${total}:`, { input_data, url: urls });
+        console.log(`[extraction] ${docType}/${segId}:`, { input_data, url: urls });
 
         try {
           const res = await fetch('/api/run-extraction', {
@@ -1126,7 +1121,7 @@
           if (!requestId) {
             result = data?.data?.executeWorkflow?.result ?? data;
           } else {
-            console.log(`[extraction] polling requestId:`, requestId);
+            console.log(`[extraction] polling ${docType}/${segId}:`, requestId);
             result = await pollSilent(requestId);
           }
 
@@ -1138,9 +1133,12 @@
           allResults[docType][segId] = null;
         }
 
-        // Update JSON panel after each segment
+        done++;
+        statusEl.innerHTML = done < total
+          ? `<span class="spinner"></span>${done}/${total} segments done…`
+          : '';
         boxEl.textContent = JSON.stringify(allResults, null, 2);
-      }
+      }));
 
       statusEl.textContent = `Done — ${total} segment${total !== 1 ? 's' : ''} extracted`;
       btn.disabled = false;
