@@ -633,9 +633,21 @@
     </div>
 
     <!-- results: segment cards + JSON -->
-    <div class="results-section" id="results-section">
+    <!-- Classification output -->
+    <div class="results-section" id="classification-section">
       <div class="results-header">
-        <label>Results</label>
+        <label>Classification</label>
+        <div class="header-actions">
+          <button class="copy-btn" style="padding:3px 10px;font-size:0.72rem" onclick="copyClassificationJson()">Copy JSON</button>
+        </div>
+      </div>
+      <div class="json-box" id="classification-box">[]</div>
+    </div>
+
+    <!-- Segmentation output -->
+    <div class="results-section" id="results-section" style="margin-top:24px">
+      <div class="results-header">
+        <label>Segmentation</label>
         <div class="header-actions">
           <button class="raw-btn" id="raw-btn" onclick="toggleRaw()">Raw JSON</button>
           <button class="copy-btn" id="copy-btn" onclick="copyOutput()">Copy All</button>
@@ -920,9 +932,13 @@
 
     function renderFirstRequestOutput() {
       const pageData = buildPageData();
-      document.getElementById('results-section').classList.add('visible');
+      document.getElementById('classification-section').classList.add('visible');
       document.getElementById('output-area').innerHTML = '';
-      document.getElementById('json-box').textContent = JSON.stringify(pageData, null, 2);
+      document.getElementById('classification-box').textContent = JSON.stringify(pageData, null, 2);
+    }
+
+    function copyClassificationJson() {
+      navigator.clipboard.writeText(document.getElementById('classification-box').textContent).catch(() => {});
     }
 
     async function triggerGroupedAndSave(pageData) {
