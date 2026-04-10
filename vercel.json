@@ -11,6 +11,7 @@
     { "src": "api/run-grouped.js", "use": "@vercel/node", "config": { "maxDuration": 300 } },
     { "src": "api/status.js", "use": "@vercel/node", "config": { "maxDuration": 30 } },
     { "src": "api/upload-page.js", "use": "@vercel/node", "config": { "maxDuration": 60 } },
+    { "src": "api/run-extraction.js", "use": "@vercel/node", "config": { "maxDuration": 300 } },
     { "src": "api/save-run.js", "use": "@vercel/node" },
     { "src": "api/runs.js", "use": "@vercel/node" }
   ],

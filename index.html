@@ -639,6 +639,7 @@
         <div class="header-actions">
           <button class="raw-btn" id="raw-btn" onclick="toggleRaw()">Raw JSON</button>
           <button class="copy-btn" id="copy-btn" onclick="copyOutput()">Copy All</button>
+          <button class="copy-btn" id="extract-btn" onclick="runExtraction()" style="display:none;background:#6366f1;color:#fff;border-color:#6366f1">Extract Documents</button>
         </div>
       </div>
       <div class="results-columns">
@@ -656,6 +657,18 @@
       </div>
     </div>
 
+    <!-- extraction results -->
+    <div class="results-section" id="extraction-section" style="margin-top:24px">
+      <div class="results-header">
+        <label>Extracted Documents</label>
+        <div class="header-actions">
+          <button class="copy-btn" style="padding:3px 10px;font-size:0.72rem" onclick="copyExtractionJson()">Copy JSON</button>
+        </div>
+      </div>
+      <div id="extraction-status" style="font-size:0.8rem;color:#fbbf24;min-height:20px;margin-bottom:8px"></div>
+      <div class="json-box" id="extraction-box">{}</div>
+    </div>
+
     <div class="status-row" id="status-row"></div>
   </div>
 
@@ -666,6 +679,7 @@
     let showingRaw = false;
     let carouselUrls = [];
     let carouselIndex = 0;
+    let groupedOutputData = null;
 
     function initCarousel(urls) {
       carouselUrls = urls;
@@ -936,6 +950,9 @@
       const isEmpty = isArray ? output.length === 0 : Object.keys(output).length === 0;
       if (isEmpty) return;
 
+      groupedOutputData = output;
+      document.getElementById('extract-btn').style.display = '';
+
       document.getElementById('results-section').classList.add('visible');
       document.getElementById('output-area').innerHTML = '';
 
@@ -1041,6 +1058,91 @@
       } catch (e) {
         console.error('[grouped] Save error:', e);
       }
+    }
+
+    async function runExtraction() {
+      if (!groupedOutputData) return;
+      const btn = document.getElementById('extract-btn');
+      btn.disabled = true;
+      btn.textContent = 'Extracting…';
+
+      const extractionSection = document.getElementById('extraction-section');
+      extractionSection.classList.add('visible');
+      const statusEl = document.getElementById('extraction-status');
+      const boxEl = document.getElementById('extraction-box');
+      boxEl.textContent = '{}';
+
+      const isArray = Array.isArray(groupedOutputData);
+      const allResults = {};
+
+      // Build flat list of {docType, segId, segData} to process sequentially
+      const tasks = [];
+      if (isArray) {
+        // [{doc_type, pages}] — no segments, treat each doc as one task
+        groupedOutputData.forEach((doc, i) => {
+          tasks.push({ docType: doc.doc_type ?? `doc_${i}`, segId: '1', segData: doc });
+        });
+      } else {
+        // {docType: {segId: {start_page, end_page, pages}}}
+        for (const [docType, segs] of Object.entries(groupedOutputData)) {
+          for (const [segId, segData] of Object.entries(segs)) {
+            tasks.push({ docType, segId, segData });
+          }
+        }
+      }
+
+      const total = tasks.length;
+
+      for (let t = 0; t < tasks.length; t++) {
+        const { docType, segId, segData } = tasks[t];
+        statusEl.innerHTML = `<span class="spinner"></span>Extracting <strong>${docType}</strong> segment ${segId} (${t + 1}/${total})…`;
+
+        // Build url list from page numbers in this segment
+        const pages = segData.pages ?? [];
+        const urls = pages
+          .map(p => carouselUrls[p.page_number - 1])
+          .filter(Boolean);
+
+        const input_data = { [docType]: { [segId]: segData } };
+        console.log(`[extraction] task ${t + 1}/${total}:`, { input_data, url: urls });
+
+        try {
+          const res = await fetch('/api/run-extraction', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ input_data, url: urls }),
+          });
+          const data = await res.json();
+          const requestId = data?.data?.executeWorkflow?.result?.requestId ?? null;
+          let result = null;
+
+          if (!requestId) {
+            result = data?.data?.executeWorkflow?.result ?? data;
+          } else {
+            console.log(`[extraction] polling requestId:`, requestId);
+            result = await pollSilent(requestId);
+          }
+
+          if (!allResults[docType]) allResults[docType] = {};
+          allResults[docType][segId] = result ?? null;
+        } catch (e) {
+          console.error(`[extraction] error on ${docType}/${segId}:`, e);
+          if (!allResults[docType]) allResults[docType] = {};
+          allResults[docType][segId] = null;
+        }
+
+        // Update JSON panel after each segment
+        boxEl.textContent = JSON.stringify(allResults, null, 2);
+      }
+
+      statusEl.textContent = `Done — ${total} segment${total !== 1 ? 's' : ''} extracted`;
+      btn.disabled = false;
+      btn.textContent = 'Extract Documents';
+    }
+
+    function copyExtractionJson() {
+      const text = document.getElementById('extraction-box').textContent;
+      navigator.clipboard.writeText(text).catch(() => {});
     }
 
     // Color map for doc types
