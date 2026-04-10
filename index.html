@@ -783,9 +783,9 @@
 
       // Step 1: 2 pages in parallel at a time, wait for ALL to finish
       showPhase('Getting Data');
-      for (let i = 0; i < batches.length; i += 2) {
-        const pair = batches.slice(i, i + 2);
-        await Promise.all(pair.map((batch, j) => runStep1(batch, i + j)));
+      for (let i = 0; i < batches.length; i += 25) {
+        const chunk = batches.slice(i, i + 25);
+        await Promise.all(chunk.map((batch, j) => runStep1(batch, i + j)));
       }
 
       // Step 2: all step 1 done — classify sequentially
