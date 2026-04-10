@@ -781,19 +781,32 @@
       // One batch per page — all pages run in parallel
       batches = urls.map((url, i) => ({ index: i, urls: [url], status: 'pending', requestId: null, result: null }));
 
-      // Step 1: chunk into groups of 50 URLs, run 4 groups in parallel at a time
+      // Step 1: chunks of 20 URLs, 2 at a time
+      // Step 2: starts immediately after each pair of step-1 chunks completes,
+      //         runs sequentially (for previous_page), overlapping with next step-1 pair
       showPhase('Getting Data');
       const urlChunks = [];
-      for (let i = 0; i < urls.length; i += 50) {
-        urlChunks.push(urls.slice(i, i + 50).map((url, j) => ({ url, page_number: i + j + 1 })));
+      for (let i = 0; i < urls.length; i += 20) {
+        urlChunks.push(urls.slice(i, i + 20).map((url, j) => ({ url, page_number: i + j + 1 })));
       }
-      await Promise.all(urlChunks.map(chunk => runStep1Batch(chunk)));
 
-      // Step 2: classify sequentially so previous_page is available
-      showPhase('Classifying');
-      for (let i = 0; i < batches.length; i++) {
-        await runStep2(batches[i], i);
+      let step2Chain = Promise.resolve();
+
+      for (let i = 0; i < urlChunks.length; i += 2) {
+        const pair = urlChunks.slice(i, i + 2);
+        await Promise.all(pair.map(chunk => runStep1Batch(chunk)));
+
+        // Queue step2 for these pages sequentially, without blocking next step1 pair
+        const pageIndices = pair.flatMap(chunk => chunk.map(item => item.page_number - 1));
+        step2Chain = step2Chain.then(async () => {
+          showPhase('Classifying');
+          for (const idx of pageIndices) {
+            await runStep2(batches[idx], idx);
+          }
+        });
       }
+
+      await step2Chain;
 
       const done = batches.filter(b => b.status === 'done').length;
       console.log(`[run] All pages complete · ${done}/${batches.length} succeeded`);
