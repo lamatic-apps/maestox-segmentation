@@ -781,26 +781,18 @@
       // One batch per page — all pages run in parallel
       batches = urls.map((url, i) => ({ index: i, urls: [url], status: 'pending', requestId: null, result: null }));
 
-      // Step 1: one request per page, 2 at a time
-      // Step 2: starts after each pair of step-1 finishes, sequentially, overlapping next pair
+      // Step 1: 2 pages in parallel at a time, wait for ALL to finish
       showPhase('Getting Data');
-
-      let step2Chain = Promise.resolve();
-
       for (let i = 0; i < batches.length; i += 2) {
         const pair = batches.slice(i, i + 2);
         await Promise.all(pair.map((batch, j) => runStep1(batch, i + j)));
-
-        const pageIndices = pair.map((_, j) => i + j);
-        step2Chain = step2Chain.then(async () => {
-          showPhase('Classifying');
-          for (const idx of pageIndices) {
-            await runStep2(batches[idx], idx);
-          }
-        });
       }
 
-      await step2Chain;
+      // Step 2: all step 1 done — classify sequentially
+      showPhase('Classifying');
+      for (let i = 0; i < batches.length; i++) {
+        await runStep2(batches[i], i);
+      }
 
       const done = batches.filter(b => b.status === 'done').length;
       console.log(`[run] All pages complete · ${done}/${batches.length} succeeded`);
