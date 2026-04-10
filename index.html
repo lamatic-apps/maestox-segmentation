@@ -781,26 +781,30 @@
       // One batch per page — all pages run in parallel
       batches = urls.map((url, i) => ({ index: i, urls: [url], status: 'pending', requestId: null, result: null }));
 
-      await Promise.all(batches.map((batch, i) => runBatch(batch, i)));
+      // Step 1: all pages in parallel
+      showPhase('Getting Data');
+      await Promise.all(batches.map((batch, i) => runStep1(batch, i)));
+
+      // Step 2: classify sequentially so previous_page is available
+      showPhase('Classifying');
+      for (let i = 0; i < batches.length; i++) {
+        await runStep2(batches[i], i);
+      }
 
       const done = batches.filter(b => b.status === 'done').length;
       console.log(`[run] All pages complete · ${done}/${batches.length} succeeded`);
 
-      // Show raw output from first request
       renderFirstRequestOutput();
-
       await triggerGroupedAndSave(buildPageData());
     }
 
-    async function runBatch(batch, i) {
+    async function runStep1(batch, i) {
       batch.status = 'running';
       const url = batch.urls[0];
       const page_number = i + 1;
-      showPhase('Getting Data');
       console.log(`[page ${page_number}] Step 1 request:`, { url, page_number });
 
       try {
-        // Step 1: metadata extraction
         const res1 = await fetch('/api/run', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -826,10 +830,20 @@
 
         if (!firstResult) { batch.status = 'failed'; return; }
 
-        // Step 2: classify using extracted metadata
-        const extracted_metadata = { output: firstResult?.data?.output?.result?.metadata_extraction?.output ?? firstResult };
+        batch.firstResult = firstResult;
+      } catch (err) {
+        batch.status = 'failed';
+        batch.error = String(err);
+      }
+    }
+
+    async function runStep2(batch, i) {
+      if (!batch.firstResult) { batch.status = 'failed'; return; }
+      const page_number = i + 1;
+
+      try {
+        const extracted_metadata = { output: batch.firstResult?.data?.output?.result?.metadata_extraction?.output ?? batch.firstResult };
         const previous_page = i > 0 ? (batches[i - 1]?.extracted_metadata ?? null) : null;
-        showPhase('Classifying');
         console.log(`[page ${page_number}] Step 2 request:`, { extracted_metadata, page_number, previous_page });
 
         const res2 = await fetch('/api/run-classify', {
@@ -851,7 +865,6 @@
         if (!requestId2) {
           classifyResult = data2?.data?.executeWorkflow?.result ?? data2;
         } else {
-          // poll classify using a temp object
           const tmp = { requestId: requestId2 };
           classifyResult = await pollBatch(tmp, i);
         }
