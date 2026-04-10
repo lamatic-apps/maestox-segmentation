@@ -778,12 +778,10 @@
       document.getElementById('raw-btn').classList.remove('active');
       initCarousel(urls);
 
-      // One batch per page
+      // One batch per page — all pages run in parallel
       batches = urls.map((url, i) => ({ index: i, urls: [url], status: 'pending', requestId: null, result: null }));
 
-      for (let i = 0; i < batches.length; i++) {
-        await runBatch(batches[i], i);
-      }
+      await Promise.all(batches.map((batch, i) => runBatch(batch, i)));
 
       const done = batches.filter(b => b.status === 'done').length;
       console.log(`[run] All pages complete · ${done}/${batches.length} succeeded`);
