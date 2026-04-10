@@ -816,13 +816,14 @@
 
         // Step 2: classify using extracted metadata
         const extracted_metadata = { output: firstResult?.data?.output?.result?.metadata_extraction?.output ?? firstResult };
+        const previous_page = i > 0 ? (batches[i - 1]?.extracted_metadata ?? null) : null;
         showPhase('Classifying');
-        console.log(`[page ${page_number}] Step 2 request:`, { extracted_metadata, page_number });
+        console.log(`[page ${page_number}] Step 2 request:`, { extracted_metadata, page_number, previous_page });
 
         const res2 = await fetch('/api/run-classify', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ extracted_metadata, page_number }),
+          body: JSON.stringify({ extracted_metadata, page_number, previous_page }),
         });
         const data2 = await res2.json();
 
