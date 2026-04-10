@@ -788,10 +788,10 @@
         await Promise.all(chunk.map((batch, j) => runStep1(batch, i + j)));
       }
 
-      // Step 2: all step 1 done — classify sequentially
+      // Step 2: classify in batches of 20, sequentially between batches
       showPhase('Classifying');
-      for (let i = 0; i < batches.length; i++) {
-        await runStep2(batches[i], i);
+      for (let i = 0; i < batches.length; i += 20) {
+        await Promise.all(batches.slice(i, i + 20).map((batch, j) => runStep2(batch, i + j)));
       }
 
       const done = batches.filter(b => b.status === 'done').length;
