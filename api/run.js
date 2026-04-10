@@ -5,12 +5,16 @@ const lamatic_api_key = process.env.LAMATIC_API_KEY;
 const query = `
 query ExecuteWorkflow(
   $workflowId: String!
-  $urls: [JSON]
+  $urls_page_number: Int
+  $urls_url: String
 ) {
   executeWorkflow(
     workflowId: $workflowId
     payload: {
-      urls: $urls
+      urls: {
+        page_number: $urls_page_number
+        url: $urls_url
+      }
     }
   ) {
     status
@@ -21,12 +25,15 @@ query ExecuteWorkflow(
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).end();
 
-  const { urls } = req.body;
+  const { url, page_number } = req.body;
 
   const variables = {
     workflowId: 'f632d352-ea1d-40af-b8cf-7d74e1b60af8',
-    urls,
+    urls_page_number: page_number,
+    urls_url: url,
   };
+
+  console.log('[run] request:', { url, page_number });
 
   const options = {
     method: 'POST',

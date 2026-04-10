@@ -781,23 +781,17 @@
       // One batch per page — all pages run in parallel
       batches = urls.map((url, i) => ({ index: i, urls: [url], status: 'pending', requestId: null, result: null }));
 
-      // Step 1: chunks of 20 URLs, 2 at a time
-      // Step 2: starts immediately after each pair of step-1 chunks completes,
-      //         runs sequentially (for previous_page), overlapping with next step-1 pair
+      // Step 1: one request per page, 2 at a time
+      // Step 2: starts after each pair of step-1 finishes, sequentially, overlapping next pair
       showPhase('Getting Data');
-      const urlChunks = [];
-      for (let i = 0; i < urls.length; i += 20) {
-        urlChunks.push(urls.slice(i, i + 20).map((url, j) => ({ url, page_number: i + j + 1 })));
-      }
 
       let step2Chain = Promise.resolve();
 
-      for (let i = 0; i < urlChunks.length; i += 2) {
-        const pair = urlChunks.slice(i, i + 2);
-        await Promise.all(pair.map(chunk => runStep1Batch(chunk)));
+      for (let i = 0; i < batches.length; i += 2) {
+        const pair = batches.slice(i, i + 2);
+        await Promise.all(pair.map((batch, j) => runStep1(batch, i + j)));
 
-        // Queue step2 for these pages sequentially, without blocking next step1 pair
-        const pageIndices = pair.flatMap(chunk => chunk.map(item => item.page_number - 1));
+        const pageIndices = pair.map((_, j) => i + j);
         step2Chain = step2Chain.then(async () => {
           showPhase('Classifying');
           for (const idx of pageIndices) {
@@ -815,55 +809,43 @@
       await triggerGroupedAndSave(buildPageData());
     }
 
-    async function runStep1Batch(urlItems) {
-      // urlItems: [{url, page_number}, ...]
-      console.log(`[step1] Batch of ${urlItems.length} pages:`, urlItems.map(u => u.page_number));
+    async function runStep1(batch, i) {
+      const url = batch.urls[0];
+      const page_number = i + 1;
+      console.log(`[page ${page_number}] Step 1 request:`, { url, page_number });
+
       try {
         const res1 = await fetch('/api/run', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ urls: urlItems }),
+          body: JSON.stringify({ url, page_number }),
         });
         const data1 = await res1.json();
 
         if (!res1.ok || data1.error) {
-          // mark all pages in this batch as failed
-          urlItems.forEach(({ page_number }) => {
-            const b = batches[page_number - 1];
-            if (b) { b.status = 'failed'; b.error = data1.error || JSON.stringify(data1); }
-          });
+          batch.status = 'failed';
+          batch.error = data1.error || JSON.stringify(data1);
           return;
         }
 
         const requestId1 = data1?.data?.executeWorkflow?.result?.requestId ?? null;
-        let batchResult = null;
+        let result = null;
 
         if (!requestId1) {
-          batchResult = data1?.data?.executeWorkflow?.result ?? data1;
+          result = data1?.data?.executeWorkflow?.result ?? data1;
         } else {
-          // poll using a temp object
-          const tmp = { requestId: requestId1 };
-          batchResult = await pollBatch(tmp, urlItems[0].page_number - 1);
+          batch.requestId = requestId1;
+          result = await pollBatch(batch, i);
         }
 
-        // batchResult.final_output is an array of {metadata_extraction, page_number, status}
-        const finalOutput = batchResult?.data?.output?.result?.final_output ?? batchResult?.final_output ?? [];
-        finalOutput.forEach(item => {
-          const b = batches[item.page_number - 1];
-          if (b) b.firstResult = item;
-        });
+        if (!result) { batch.status = 'failed'; return; }
 
-        // Mark any pages in this chunk that didn't get a result as failed
-        urlItems.forEach(({ page_number }) => {
-          const b = batches[page_number - 1];
-          if (b && !b.firstResult) b.status = 'failed';
-        });
+        // final_output is {is_map, markdown, document_annotation}
+        batch.firstResult = result?.data?.output?.result?.final_output ?? result?.final_output ?? result;
 
       } catch (err) {
-        urlItems.forEach(({ page_number }) => {
-          const b = batches[page_number - 1];
-          if (b) { b.status = 'failed'; b.error = String(err); }
-        });
+        batch.status = 'failed';
+        batch.error = String(err);
       }
     }
 
@@ -872,8 +854,8 @@
       const page_number = i + 1;
 
       try {
-        // firstResult is {metadata_extraction, page_number, status} from final_output
-        const extracted_metadata = { output: batch.firstResult?.metadata_extraction ?? batch.firstResult };
+        // firstResult is {is_map, markdown, document_annotation}
+        const extracted_metadata = { output: batch.firstResult };
         const previous_page = i > 0 ? (batches[i - 1]?.extracted_metadata ?? null) : null;
         console.log(`[page ${page_number}] Step 2 request:`, { extracted_metadata, page_number, previous_page });
 
