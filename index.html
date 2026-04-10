@@ -781,9 +781,11 @@
       // One batch per page — all pages run in parallel
       batches = urls.map((url, i) => ({ index: i, urls: [url], status: 'pending', requestId: null, result: null }));
 
-      // Step 1: all pages in parallel
+      // Step 1: pages in parallel batches of 30
       showPhase('Getting Data');
-      await Promise.all(batches.map((batch, i) => runStep1(batch, i)));
+      for (let i = 0; i < batches.length; i += 30) {
+        await Promise.all(batches.slice(i, i + 30).map((batch, j) => runStep1(batch, i + j)));
+      }
 
       // Step 2: classify sequentially so previous_page is available
       showPhase('Classifying');
