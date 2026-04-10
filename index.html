@@ -1060,6 +1060,11 @@
       }
     }
 
+    const EXTRACTION_SKIP_TYPES = new Set([
+      'order_form', 'searcher_sheets', 'searcher_sheet', 'affidavit', 'power_of_attorney',
+      'map', 'policy', 'agreement', 'estate', 'legal_description', 'tax_assessment', 'other',
+    ]);
+
     async function runExtraction() {
       if (!groupedOutputData) return;
       const btn = document.getElementById('extract-btn');
@@ -1080,11 +1085,13 @@
       if (isArray) {
         // [{doc_type, pages}] — no segments, treat each doc as one task
         groupedOutputData.forEach((doc, i) => {
-          tasks.push({ docType: doc.doc_type ?? `doc_${i}`, segId: '1', segData: doc });
+          const docType = doc.doc_type ?? `doc_${i}`;
+          if (!EXTRACTION_SKIP_TYPES.has(docType)) tasks.push({ docType, segId: '1', segData: doc });
         });
       } else {
         // {docType: {segId: {start_page, end_page, pages}}}
         for (const [docType, segs] of Object.entries(groupedOutputData)) {
+          if (EXTRACTION_SKIP_TYPES.has(docType)) continue;
           for (const [segId, segData] of Object.entries(segs)) {
             tasks.push({ docType, segId, segData });
           }
