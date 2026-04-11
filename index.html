@@ -1067,19 +1067,32 @@
 
       } else {
         // Legacy format: { docType: { segId: { start_page, end_page, pages } } }
-        segCol.innerHTML = Object.entries(output).map(([docType, segs], i) => {
-          const color = docTypeColor(docType);
-          const label = docType.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
-          const segVals = Object.values(segs);
-          const startPage = Math.min(...segVals.map(s => s.start_page));
-          const endPage   = Math.max(...segVals.map(s => s.end_page));
-          const totalPages = segVals.reduce((sum, s) => sum + (s.pages?.length ?? 0), 0);
-          return `<div class="segment-card${i === 0 ? ' active' : ''}" onclick="selectGroupedDoc('${docType}', this, ${startPage})">
+        // Reorganize by segment instead of doctype
+        const segmentMap = {};
+        Object.entries(output).forEach(([docType, segs]) => {
+          Object.entries(segs).forEach(([segId, segData]) => {
+            if (!segmentMap[segId]) segmentMap[segId] = {};
+            segmentMap[segId][docType] = segData;
+          });
+        });
+
+        segCol.innerHTML = Object.entries(segmentMap).map(([segId, doctypes], i) => {
+          const docTypeList = Object.keys(doctypes);
+          const color = docTypeColor(docTypeList[0]);
+          const label = `Segment ${segId}`;
+          const allPages = [];
+          Object.values(doctypes).forEach(seg => {
+            if (seg.pages) allPages.push(...seg.pages.map(p => p.page_number || 0));
+          });
+          const startPage = allPages.length ? Math.min(...allPages.filter(Boolean)) : 1;
+          const endPage = allPages.length ? Math.max(...allPages.filter(Boolean)) : startPage;
+          const totalPages = allPages.length;
+          return `<div class="segment-card${i === 0 ? ' active' : ''}" onclick="selectGroupedDoc('${docTypeList[0]}', this, ${startPage})">
             <div class="segment-type-dot" style="background:${color}"></div>
             <div class="segment-info">
               <div class="segment-type">${esc(label)}</div>
               <div class="segment-pages">Pages ${startPage} – ${endPage}</div>
-              <div class="segment-meta">${totalPages} pages · ${segVals.length} segment${segVals.length !== 1 ? 's' : ''}</div>
+              <div class="segment-meta">${totalPages} pages · ${docTypeList.length} doctype${docTypeList.length !== 1 ? 's' : ''}</div>
             </div>
           </div>`;
         }).join('');
