@@ -819,27 +819,31 @@
       console.log(`[page ${page_number}] Step 1 request:`, { url, page_number });
 
       try {
-        const res1 = await fetch('/api/run', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ url, page_number }),
-        });
-        const data1 = await res1.json();
-
-        if (!res1.ok || data1.error) {
-          batch.status = 'failed';
-          batch.error = data1.error || JSON.stringify(data1);
-          return;
-        }
-
-        const requestId1 = data1?.data?.executeWorkflow?.result?.requestId ?? null;
         let result = null;
 
-        if (!requestId1) {
-          result = data1?.data?.executeWorkflow?.result ?? data1;
-        } else {
+        while (!result) {
+          const data1 = await startStep1Request(url, page_number);
+          const requestId1 = data1?.data?.executeWorkflow?.result?.requestId ?? null;
+
+          if (!requestId1) {
+            result = data1?.data?.executeWorkflow?.result ?? data1;
+            break;
+          }
+
           batch.requestId = requestId1;
-          result = await pollBatch(batch, i);
+          const pollResult = await pollBatchWithLimit(batch, i, 60);
+
+          if (pollResult?.state === 'completed') {
+            result = pollResult.result;
+            break;
+          }
+
+          if (pollResult?.state === 'failed') {
+            batch.status = 'failed';
+            return;
+          }
+
+          console.log(`[page ${page_number}] Poll limit reached. Resending Step 1 request with same payload…`);
         }
 
         if (!result) { batch.status = 'failed'; return; }
@@ -851,6 +855,21 @@
         batch.status = 'failed';
         batch.error = String(err);
       }
+    }
+
+    async function startStep1Request(url, page_number) {
+      const res1 = await fetch('/api/run', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ url, page_number }),
+      });
+      const data1 = await res1.json();
+
+      if (!res1.ok || data1.error) {
+        throw new Error(data1.error || JSON.stringify(data1));
+      }
+
+      return data1;
     }
 
     async function runStep2(batch, i) {
@@ -917,6 +936,30 @@
         }
       }
       return null;
+    }
+
+    async function pollBatchWithLimit(batch, batchIdx, maxPolls) {
+      let attempts = 0;
+      while (attempts < maxPolls) {
+        await new Promise(r => setTimeout(r, 3000));
+        attempts++;
+        try {
+          const res = await fetch(`/api/status?requestId=${batch.requestId}`);
+          const data = await res.json();
+          const checkStatus = data?.data?.checkStatus;
+          const currentStatus = typeof checkStatus === 'object' ? checkStatus?.status : checkStatus;
+          console.log(`[batch ${batchIdx+1}] poll ${attempts} · ${currentStatus ?? 'unknown'}`);
+          if (!currentStatus) continue;
+          const s = currentStatus.toLowerCase();
+          if (['failed', 'error'].includes(s)) return { state: 'failed' };
+          if (['completed', 'success', 'done'].includes(s)) {
+            return { state: 'completed', result: checkStatus?.result ?? checkStatus };
+          }
+        } catch (err) {
+          console.error(`[batch ${batchIdx+1}] poll ${attempts} error:`, err);
+        }
+      }
+      return { state: 'limit' };
     }
 
     function buildPageData() {

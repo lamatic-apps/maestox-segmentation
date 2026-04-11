@@ -112,8 +112,8 @@
       document.getElementById('error').textContent = msg || '';
     }
 
-    async function pollStatus(requestId) {
-      for (let i = 0; i < 3600; i++) {
+    async function pollStatus(requestId, maxPolls = 60) {
+      for (let i = 0; i < maxPolls; i++) {
         await new Promise(r => setTimeout(r, 3000));
         try {
           const res = await fetch(`/api/status?requestId=${requestId}`);
@@ -121,13 +121,28 @@
           const checkStatus = data?.data?.checkStatus;
           const s = (typeof checkStatus === 'object' ? checkStatus?.status : checkStatus)?.toLowerCase();
           console.log(`[segment] poll ${i + 1}: ${s}`);
-          if (['failed', 'error'].includes(s)) return null;
-          if (['completed', 'success', 'done'].includes(s)) return checkStatus;
+          if (['failed', 'error'].includes(s)) return { state: 'failed' };
+          if (['completed', 'success', 'done'].includes(s)) return { state: 'completed', result: checkStatus };
         } catch (e) {
           console.error('[segment] poll error:', e);
         }
       }
-      return null;
+      return { state: 'limit' };
+    }
+
+    async function startSegmentationRequest(requestPayload) {
+      const res = await fetch('/api/run-grouped', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(requestPayload),
+      });
+      const data = await res.json();
+
+      if (!res.ok || data.error) {
+        throw new Error(data.error || JSON.stringify(data));
+      }
+
+      return data;
     }
 
     async function runSegmentation() {
@@ -156,29 +171,39 @@
       console.log('[segment] request payload:', requestPayload);
 
       try {
-        const res = await fetch('/api/run-grouped', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(requestPayload),
-        });
-        const data = await res.json();
-
-        if (!res.ok || data.error) {
-          setError(data.error || JSON.stringify(data));
-          setStatus('');
-          btn.disabled = false;
-          return;
-        }
-
-        const requestId = data?.data?.executeWorkflow?.result?.requestId ?? null;
         let result = null;
+        let batchAttempt = 1;
 
-        if (!requestId) {
-          result = data?.data?.executeWorkflow?.result ?? data;
-        } else {
+        while (!result) {
+          setStatus(batchAttempt === 1
+            ? 'Sending to segmentation workflow…'
+            : `Poll limit reached. Restarting batch ${batchAttempt}…`);
+
+          const data = await startSegmentationRequest(requestPayload);
+          const requestId = data?.data?.executeWorkflow?.result?.requestId ?? null;
+
+          if (!requestId) {
+            result = data?.data?.executeWorkflow?.result ?? data;
+            break;
+          }
+
           console.log('[segment] polling requestId:', requestId);
-          setStatus('Segmenting…');
-          result = await pollStatus(requestId);
+          setStatus(`Segmenting… (batch ${batchAttempt})`);
+          const pollResult = await pollStatus(requestId, 60);
+
+          if (pollResult?.state === 'completed') {
+            result = pollResult.result;
+            break;
+          }
+
+          if (pollResult?.state === 'failed') {
+            setError('Segmentation failed.');
+            setStatus('');
+            btn.disabled = false;
+            return;
+          }
+
+          batchAttempt += 1;
         }
 
         setStatus('');
