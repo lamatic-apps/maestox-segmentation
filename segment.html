@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Segment</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: #0f1117; color: #e2e8f0; min-height: 100vh; padding: 24px;
+    }
+    .card {
+      background: #1a1d27; border: 1px solid #2d3148; border-radius: 16px;
+      padding: 40px; width: 100%; max-width: 900px; margin: 0 auto;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+    }
+    h1 { font-size: 1.4rem; font-weight: 700; margin-bottom: 6px; color: #fff; }
+    .subtitle { font-size: 0.875rem; color: #6b7280; margin-bottom: 28px; }
+    label {
+      display: block; font-size: 0.75rem; font-weight: 600;
+      text-transform: uppercase; letter-spacing: 0.05em; color: #9ca3af; margin-bottom: 8px;
+    }
+    textarea {
+      width: 100%; background: #0f1117; border: 1px solid #2d3148; border-radius: 10px;
+      padding: 12px 16px; color: #e2e8f0; font-size: 0.82rem; font-family: "SF Mono", monospace;
+      outline: none; resize: vertical; height: 260px; line-height: 1.55; transition: border-color 0.2s;
+    }
+    textarea:focus { border-color: #6366f1; }
+    .btn {
+      margin-top: 16px; padding: 10px 24px; background: #6366f1; color: #fff;
+      border: none; border-radius: 8px; font-size: 0.9rem; font-weight: 600;
+      cursor: pointer; transition: opacity 0.2s;
+    }
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    .btn:hover:not(:disabled) { opacity: 0.88; }
+    .status {
+      margin-top: 14px; font-size: 0.8rem; color: #fbbf24; min-height: 20px;
+      display: flex; align-items: center; gap: 6px;
+    }
+    .spinner {
+      display: inline-block; width: 10px; height: 10px;
+      border: 2px solid #6366f1; border-top-color: transparent;
+      border-radius: 50%; animation: spin 0.7s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .result-section { margin-top: 28px; display: none; }
+    .result-section.visible { display: block; }
+    .result-header {
+      display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;
+    }
+    .result-label {
+      font-size: 0.75rem; font-weight: 600; text-transform: uppercase;
+      letter-spacing: 0.05em; color: #9ca3af;
+    }
+    .copy-btn {
+      background: transparent; border: 1px solid #374151; border-radius: 6px;
+      color: #9ca3af; font-size: 0.72rem; padding: 3px 10px; cursor: pointer;
+      transition: color 0.2s, border-color 0.2s;
+    }
+    .copy-btn:hover { color: #e2e8f0; border-color: #6366f1; }
+    .json-box {
+      background: #0f1117; border: 1px solid #2d3148; border-radius: 10px;
+      padding: 16px; font-family: "SF Mono", monospace; font-size: 0.78rem;
+      color: #a5b4fc; white-space: pre-wrap; word-break: break-all;
+      max-height: 520px; overflow-y: auto; line-height: 1.55;
+    }
+    .error { color: #f87171; margin-top: 12px; font-size: 0.82rem; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>Segmentation</h1>
+    <p class="subtitle">Paste classification output array and run segmentation.</p>
+
+    <label for="input-box">Classification Array (JSON)</label>
+    <textarea id="input-box" placeholder='[{"1": {"extracted_metadata": {...}, "doc_type": "..."}}, ...]'></textarea>
+
+    <button class="btn" id="run-btn" onclick="runSegmentation()">Run Segmentation</button>
+
+    <div class="status" id="status"></div>
+    <div class="error" id="error"></div>
+
+    <div class="result-section" id="result-section">
+      <div class="result-header">
+        <span class="result-label">Segmentation Output</span>
+        <button class="copy-btn" onclick="copyResult()">Copy JSON</button>
+      </div>
+      <div class="json-box" id="result-box"></div>
+    </div>
+  </div>
+
+  <script>
+    function esc(s) {
+      return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    }
+
+    function setStatus(msg) {
+      document.getElementById('status').innerHTML = msg
+        ? `<span class="spinner"></span>${esc(msg)}`
+        : '';
+    }
+
+    function setError(msg) {
+      document.getElementById('error').textContent = msg || '';
+    }
+
+    async function pollStatus(requestId) {
+      for (let i = 0; i < 3600; i++) {
+        await new Promise(r => setTimeout(r, 3000));
+        try {
+          const res = await fetch(`/api/status?requestId=${requestId}`);
+          const data = await res.json();
+          const checkStatus = data?.data?.checkStatus;
+          const s = (typeof checkStatus === 'object' ? checkStatus?.status : checkStatus)?.toLowerCase();
+          console.log(`[segment] poll ${i + 1}: ${s}`);
+          if (['failed', 'error'].includes(s)) return null;
+          if (['completed', 'success', 'done'].includes(s)) return checkStatus;
+        } catch (e) {
+          console.error('[segment] poll error:', e);
+        }
+      }
+      return null;
+    }
+
+    async function runSegmentation() {
+      setError('');
+      setStatus('');
+
+      const raw = document.getElementById('input-box').value.trim();
+      if (!raw) { setError('Paste the classification array first.'); return; }
+
+      let grouped_data;
+      try {
+        grouped_data = JSON.parse(raw);
+        if (!Array.isArray(grouped_data)) throw new Error('Expected a JSON array.');
+      } catch (e) {
+        setError('Invalid JSON: ' + e.message);
+        return;
+      }
+
+      const btn = document.getElementById('run-btn');
+      btn.disabled = true;
+      setStatus('Sending to segmentation workflow…');
+
+      try {
+        const res = await fetch('/api/run-grouped', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ grouped_data }),
+        });
+        const data = await res.json();
+
+        if (!res.ok || data.error) {
+          setError(data.error || JSON.stringify(data));
+          setStatus('');
+          btn.disabled = false;
+          return;
+        }
+
+        const requestId = data?.data?.executeWorkflow?.result?.requestId ?? null;
+        let result = null;
+
+        if (!requestId) {
+          result = data?.data?.executeWorkflow?.result ?? data;
+        } else {
+          console.log('[segment] polling requestId:', requestId);
+          setStatus('Segmenting…');
+          result = await pollStatus(requestId);
+        }
+
+        setStatus('');
+
+        if (!result) {
+          setError('Segmentation failed or timed out.');
+          btn.disabled = false;
+          return;
+        }
+
+        const output = result?.data?.output?.result?.output ?? result?.output ?? result;
+        document.getElementById('result-box').textContent = JSON.stringify(output, null, 2);
+        document.getElementById('result-section').classList.add('visible');
+        console.log('[segment] result:', output);
+
+      } catch (e) {
+        setError('Error: ' + e.message);
+        setStatus('');
+      }
+
+      btn.disabled = false;
+    }
+
+    function copyResult() {
+      navigator.clipboard.writeText(document.getElementById('result-box').textContent).catch(() => {});
+    }
+  </script>
+</body>
+</html>

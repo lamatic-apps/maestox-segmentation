@@ -2,6 +2,7 @@
   "version": 2,
   "builds": [
     { "src": "index.html", "use": "@vercel/static" },
+    { "src": "segment.html", "use": "@vercel/static" },
     { "src": "history.html", "use": "@vercel/static" },
     { "src": "upload.html", "use": "@vercel/static" },
     { "src": "grouped.html", "use": "@vercel/static" },
@@ -16,6 +17,7 @@
     { "src": "api/runs.js", "use": "@vercel/node" }
   ],
   "routes": [
+    { "src": "/segment", "dest": "/segment.html" },
     { "src": "/api/([^.]+)", "dest": "/api/$1.js" }
   ]
 }

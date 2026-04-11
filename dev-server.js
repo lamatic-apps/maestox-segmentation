@@ -41,6 +41,11 @@ app.post('/api/upload-page', async (req, res) => adaptHandler(await loadHandler(
 app.post('/api/save-run', async (req, res) => adaptHandler(await loadHandler('save-run'))(req, res));
 app.get('/api/runs', async (req, res) => adaptHandler(await loadHandler('runs'))(req, res));
 
+// Secret direct route for segmentation page (not linked in UI)
+app.get('/segment', (req, res) => {
+  res.sendFile(path.join(__dirname, 'segment.html'));
+});
+
 const PORT = 3000;
 const server = app.listen(PORT, () => console.log(`Server running at http://localhost:${PORT}`));
 server.timeout = 600000;
