@@ -8,6 +8,7 @@ query ExecuteWorkflow(
   $extracted_metadata: JSON
   $page_number: Int
   $previous_page: JSON
+  $next_page: JSON
 ) {
   executeWorkflow(
     workflowId: $workflowId
@@ -15,6 +16,7 @@ query ExecuteWorkflow(
       extracted_metadata: $extracted_metadata
       page_number: $page_number
       previous_page: $previous_page
+      next_page: $next_page
     }
   ) {
     status
@@ -25,13 +27,14 @@ query ExecuteWorkflow(
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).end();
 
-  const { extracted_metadata, page_number, previous_page } = req.body;
+  const { extracted_metadata, page_number, previous_page, next_page } = req.body;
 
   const variables = {
     workflowId: '30282a88-1051-4774-924a-027862f8bc6a',
     extracted_metadata,
     page_number,
     previous_page: previous_page ?? null,
+    next_page: next_page ?? null,
   };
 
   const options = {
