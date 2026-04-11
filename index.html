@@ -831,7 +831,7 @@
           }
 
           batch.requestId = requestId1;
-          const pollResult = await pollBatchWithLimit(batch, i, 10);
+          const pollResult = await pollBatchWithLimit(batch, i, 50);
 
           if (pollResult?.state === 'completed') {
             result = pollResult.result;
