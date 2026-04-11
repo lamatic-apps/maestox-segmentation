@@ -81,6 +81,13 @@
     <div class="status" id="status"></div>
     <div class="error" id="error"></div>
 
+    <div class="result-section" id="request-section">
+      <div class="result-header">
+        <span class="result-label">Request Sent</span>
+      </div>
+      <div class="json-box" id="request-box"></div>
+    </div>
+
     <div class="result-section" id="result-section">
       <div class="result-header">
         <span class="result-label">Segmentation Output</span>
@@ -143,11 +150,16 @@
       btn.disabled = true;
       setStatus('Sending to segmentation workflow…');
 
+      const requestPayload = { grouped_data };
+      document.getElementById('request-box').textContent = JSON.stringify(requestPayload, null, 2);
+      document.getElementById('request-section').classList.add('visible');
+      console.log('[segment] request payload:', requestPayload);
+
       try {
         const res = await fetch('/api/run-grouped', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ grouped_data }),
+          body: JSON.stringify(requestPayload),
         });
         const data = await res.json();
 
