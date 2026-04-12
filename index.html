@@ -881,29 +881,40 @@
         const extracted_metadata = { output: batch.firstResult };
         const previous_page = i > 0 && batches[i - 1]?.firstResult ? { output: batches[i - 1].firstResult } : null;
         const next_page = i < batches.length - 1 && batches[i + 1]?.firstResult ? { output: batches[i + 1].firstResult } : null;
-        console.log(`[page ${page_number}] Step 2 request:`, { extracted_metadata, page_number, previous_page, next_page });
 
-        const res2 = await fetch('/api/run-classify', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ extracted_metadata, page_number, previous_page, next_page }),
-        });
-        const data2 = await res2.json();
-
-        if (!res2.ok || data2.error) {
-          batch.status = 'failed';
-          batch.error = data2.error || JSON.stringify(data2);
-          return;
-        }
-
-        const requestId2 = data2?.data?.executeWorkflow?.result?.requestId ?? null;
         let classifyResult = null;
+        let attempt = 1;
 
-        if (!requestId2) {
-          classifyResult = data2?.data?.executeWorkflow?.result ?? data2;
-        } else {
-          const tmp = { requestId: requestId2 };
-          classifyResult = await pollBatch(tmp, i);
+        while (!classifyResult && attempt <= 3) {
+          console.log(`[page ${page_number}] Step 2 request (attempt ${attempt}):`, { extracted_metadata, page_number, previous_page, next_page });
+
+          const res2 = await fetch('/api/run-classify', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ extracted_metadata, page_number, previous_page, next_page }),
+          });
+          const data2 = await res2.json();
+
+          if (!res2.ok || data2.error) {
+            batch.status = 'failed';
+            batch.error = data2.error || JSON.stringify(data2);
+            return;
+          }
+
+          const requestId2 = data2?.data?.executeWorkflow?.result?.requestId ?? null;
+
+          if (!requestId2) {
+            classifyResult = data2?.data?.executeWorkflow?.result ?? data2;
+          } else {
+            const tmp = { requestId: requestId2 };
+            const pollResult = await pollBatch(tmp, i);
+            if (pollResult?.limit) {
+              attempt++;
+              console.log(`[page ${page_number}] Poll limit reached, resending request...`);
+              continue;
+            }
+            classifyResult = pollResult;
+          }
         }
 
         batch.extracted_metadata = extracted_metadata;
@@ -922,6 +933,7 @@
       while (attempts < 3600) {
         await new Promise(r => setTimeout(r, 3000));
         attempts++;
+        if (attempts > 50) return { limit: true };
         try {
           const res = await fetch(`/api/status?requestId=${batch.requestId}`);
           const data = await res.json();
