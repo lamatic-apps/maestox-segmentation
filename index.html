@@ -1506,14 +1506,30 @@
 
           setPhase(`Uploading page ${pageNum} of ${total}…`);
           const filename = `pdf-pages/${prefix}--page-${pageNum}-${Date.now()}.png`;
-          const res = await fetch('/api/upload-page', {
-            method: 'POST',
-            headers: { 'x-filename': filename, 'Content-Type': 'image/png' },
-            body: pngData,
-          });
-          const { url, error } = await res.json();
-          if (error) throw new Error(error);
-          uploadedUrls.push(url);
+
+          let uploaded = false;
+          for (let attempt = 1; attempt <= 3; attempt++) {
+            try {
+              const res = await fetch('/api/upload-page', {
+                method: 'POST',
+                headers: { 'x-filename': filename, 'Content-Type': 'image/png' },
+                body: pngData,
+              });
+              const { url, error } = await res.json();
+              if (error) throw new Error(error);
+              uploadedUrls.push(url);
+              uploaded = true;
+              break;
+            } catch (err) {
+              if (attempt < 3) {
+                const delay = Math.pow(2, attempt - 1) * 500;
+                console.log(`[upload] Page ${pageNum} attempt ${attempt} failed, retrying in ${delay}ms...`);
+                await new Promise(r => setTimeout(r, delay));
+              } else {
+                throw err;
+              }
+            }
+          }
         } catch (err) {
           console.error(`[upload] Page ${pageNum} failed:`, err);
         }
