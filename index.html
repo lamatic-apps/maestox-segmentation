@@ -1081,7 +1081,7 @@
           const startPage = segData.start_page;
           const endPage = segData.end_page;
           const pageCount = segData.pages?.length ?? 0;
-          return `<div class="segment-card${i === 0 ? ' active' : ''}" onclick="selectGroupedDoc('${docType}', this, ${startPage})">
+          return `<div class="segment-card${i === 0 ? ' active' : ''}" onclick="selectGroupedDoc('${docType}-${segId}', this, ${startPage})">
             <div class="segment-type-dot" style="background:${color}"></div>
             <div class="segment-info">
               <div class="segment-type">${esc(label)}</div>
@@ -1096,7 +1096,18 @@
         entries.forEach(([key, val], i) => {
           const comma = i < entries.length - 1 ? ',' : '';
           const valStr = esc(JSON.stringify(val, null, 2)).replace(/\n/g, '\n  ');
-          html += `<span id="json-anchor-${esc(key)}" style="display:block;scroll-margin-top:8px">  <span style="color:#818cf8">"${esc(key)}"</span>: ${valStr}${comma}\n</span>`;
+          html += `<span id="json-anchor-${esc(key)}" style="display:block;scroll-margin-top:8px">  <span style="color:#818cf8">"${esc(key)}"</span>: {\n`;
+
+          // Add anchors for each segment within this doctype
+          const segs = val;
+          const segKeys = Object.keys(segs);
+          segKeys.forEach((segKey, sIdx) => {
+            const segComma = sIdx < segKeys.length - 1 ? ',' : '';
+            const segValStr = esc(JSON.stringify(segs[segKey], null, 2)).replace(/\n/g, '\n    ');
+            html += `<span id="json-anchor-${esc(key)}-${esc(segKey)}" style="display:block;scroll-margin-top:8px">    <span style="color:#818cf8">"${esc(segKey)}"</span>: ${segValStr}${segComma}\n</span>`;
+          });
+
+          html += `  }${comma}\n</span>`;
         });
         html += '<span style="color:#6b7280">}</span>';
         box.innerHTML = html;
