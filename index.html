@@ -793,6 +793,15 @@
       // One batch per page — all pages run in parallel
       batches = urls.map((url, i) => ({ index: i, urls: [url], status: 'pending', requestId: null, result: null }));
 
+      // Log URL mapping for debugging page numbering
+      console.log('[batch] Total batches:', batches.length);
+      [236, 237, 238, 239, 240].filter(i => i < urls.length).forEach(i => {
+        const url = urls[i];
+        const pageMatch = url.match(/--page-(\d+)-/);
+        const pageNumInUrl = pageMatch ? pageMatch[1] : 'unknown';
+        console.log(`[batch][${i}] Expected page: ${i+1}, URL page: ${pageNumInUrl}, URL: ${url}`);
+      });
+
       // Step 1: 2 pages in parallel at a time, wait for ALL to finish
       showPhase('Getting Data');
       for (let i = 0; i < batches.length; i += 25) {
